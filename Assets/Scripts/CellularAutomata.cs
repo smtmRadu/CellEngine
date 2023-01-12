@@ -7,12 +7,16 @@ using UnityEngine.UI;
 
 public class CellularAutomata : MonoBehaviour
 {
-    public int width = 320;
-    public int height = 180;
+    public int scaleDivision = 6;
+    private int width;
+    private int height;
     public Shape livingBeingShape = Shape.Boat;
     public int eraserSize = 50;
+    public int wallSize = 3;
     public Color aliveCellColor = Color.green;
+    public Color wallColor = Color.white;
     public Color deadCellColor = Color.black;
+    public Texture2D mouseCursor;
 
     public float colorLerpPower = 0.01f;
     Color targetColor = Color.blue;
@@ -25,23 +29,34 @@ public class CellularAutomata : MonoBehaviour
 
     private void Awake()
     {
-        Application.targetFrameRate = 50;
+        screenSize = Screen.currentResolution;
+        width = screenSize.width/scaleDivision;
+        height = screenSize.height/scaleDivision;
+
+        Application.targetFrameRate = 45;
         sr = GetComponent<SpriteRenderer>();
         matrix = new Color[width, height];
         texture = new Texture2D(width, height);
         texture.filterMode = FilterMode.Point;
-        screenSize = Screen.currentResolution;
+   
+        Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
+
         for (int i = 0; i < matrix.GetLength(0); i++)
         {
             for (int j = 0; j < matrix.GetLength(1); j++)
             {
-                matrix[i, j] = deadCellColor;
+                try
+                {
+                    matrix[i, j] = deadCellColor;
+                }
+                catch { }
             }
         }
     }
     void Update()
     {
-        Draw();
+        DrawCells();
+        DrawWalls();
         Erase();
         ConwayGameOfLifeAlgorithm();
         RenderMatrix();
@@ -54,9 +69,12 @@ public class CellularAutomata : MonoBehaviour
             targetColor = new Color(Random.value,Random.value,Random.value,1);
         }
     }
-    private void Draw()
+    private void DrawCells()
     {
         if (!Input.GetMouseButton(0))
+            return;
+
+        if (Input.GetKey(KeyCode.LeftControl))
             return;
 
         Vector2 mousePosition = Input.mousePosition;
@@ -64,30 +82,42 @@ public class CellularAutomata : MonoBehaviour
         mousePosition.y = mousePosition.y * height / screenSize.height;
         try
         {
-            switch(livingBeingShape)
-            {
-                case Shape.Boat:
-                    matrix[(int)mousePosition.x, (int)mousePosition.y] = aliveCellColor;
-                    matrix[(int)mousePosition.x + 1, (int)mousePosition.y] = aliveCellColor;
-                    matrix[(int)mousePosition.x, (int)mousePosition.y - 1] = aliveCellColor;
-                    matrix[(int)mousePosition.x + 2, (int)mousePosition.y - 1] = aliveCellColor;
-                    matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 2] = aliveCellColor;
-                    break;
-                case Shape.Square:
-                    matrix[(int)mousePosition.x, (int)mousePosition.y] = aliveCellColor;
-                    matrix[(int)mousePosition.x + 1, (int)mousePosition.y] = aliveCellColor;
-                    matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 1] = aliveCellColor;
-                    matrix[(int)mousePosition.x, (int)mousePosition.y - 1] = aliveCellColor;
-                    break;
-                case Shape.Line:    
-                    matrix[(int)mousePosition.x, (int)mousePosition.y] = aliveCellColor;
-                    matrix[(int)mousePosition.x, (int)mousePosition.y+1] = aliveCellColor;
-                    matrix[(int)mousePosition.x, (int)mousePosition.y-1] = aliveCellColor;
-                    break;
-            }            
+            // boat
+            if (matrix[(int)mousePosition.x, (int)mousePosition.y] == deadCellColor)
+                matrix[(int)mousePosition.x, (int)mousePosition.y] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 1, (int)mousePosition.y] == deadCellColor)
+                matrix[(int)mousePosition.x + 1, (int)mousePosition.y] = aliveCellColor;
+            if (matrix[(int)mousePosition.x, (int)mousePosition.y - 1] == deadCellColor)
+                matrix[(int)mousePosition.x, (int)mousePosition.y - 1] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 2, (int)mousePosition.y - 1] == deadCellColor)
+                matrix[(int)mousePosition.x + 2, (int)mousePosition.y - 1] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 2] == deadCellColor)
+                matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 2] = aliveCellColor;                          
         }
         catch { }
        
+    }
+    private void DrawWalls()
+    {
+        if (!Input.GetMouseButton(0) || !Input.GetKey(KeyCode.LeftControl))
+            return;
+
+        Vector2 mousePosition = Input.mousePosition;
+        mousePosition.x = mousePosition.x * width / screenSize.width;
+        mousePosition.y = mousePosition.y * height / screenSize.height;
+
+        try
+        {
+            for (int i = 0; i < wallSize; i++)
+            {
+                for (int j = 0; j < wallSize; j++)
+                {
+                    matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = wallColor;
+                }
+
+            }
+        }
+        catch { }
     }
     private void Erase()
     {
@@ -117,11 +147,13 @@ public class CellularAutomata : MonoBehaviour
             for (int j = 0; j < matrix.GetLength(1); j++)
             {
                 int neighboursCount = NeighboursCount(i, j);
+                if (IsWall(matrix[i, j]))
+                    continue;
                 if(IsDead(matrix[i,j]) && neighboursCount == 3) 
                 {
                     matrix[i, j] = aliveCellColor;
                 }
-                else if (!IsDead(matrix[i,j]) && neighboursCount >= 2 && neighboursCount <= 3)
+                else if (IsAlive(matrix[i,j]) && neighboursCount >= 2 && neighboursCount <= 3)
                 {
                     // stays alive
                 }
@@ -137,7 +169,7 @@ public class CellularAutomata : MonoBehaviour
         int count = 0;
         try
         {
-            if (!IsDead(matrix[x,y+1]))
+            if (IsAlive(matrix[x,y+1]))
             {
                 count++;
             }
@@ -145,7 +177,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x+1, y + 1]))
+            if (IsAlive(matrix[x+1, y + 1]))
             {
                 count++;
             }
@@ -153,7 +185,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x+1, y]))
+            if (IsAlive(matrix[x + 1, y]))
             {
                 count++;
             }
@@ -161,7 +193,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x+1, y - 1]))
+            if (IsAlive(matrix[x + 1, y - 1]))
             {
                 count++;
             }
@@ -170,7 +202,7 @@ public class CellularAutomata : MonoBehaviour
 
         try
         {
-            if (!IsDead(matrix[x, y - 1]))
+            if (IsAlive(matrix[x, y - 1]))
             {
                 count++;
             }
@@ -178,7 +210,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x - 1, y - 1]))
+            if (IsAlive(matrix[x - 1, y - 1]))
             {
                 count++;
             }
@@ -186,7 +218,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x-1, y]))
+            if (IsAlive(matrix[x - 1, y]))
             {
                 count++;
             }
@@ -194,7 +226,7 @@ public class CellularAutomata : MonoBehaviour
         catch { }
         try
         {
-            if (!IsDead(matrix[x - 1, y + 1]))
+            if (IsAlive(matrix[x - 1, y + 1]))
             {
                 count++;
             }
@@ -209,6 +241,19 @@ public class CellularAutomata : MonoBehaviour
             return true;
         return false;
     }
+    bool IsAlive(Color col)
+    {
+        if (!col.Equals(deadCellColor) && !col.Equals(wallColor))
+            return true;
+        return false;
+    }
+    bool IsWall(Color col)
+    {
+        if (col.Equals(wallColor))
+            return true;
+        return false;
+    }
+
     void RenderMatrix()
     {
         Color[] flatPixels = new Color[width * height];
@@ -227,7 +272,6 @@ public class CellularAutomata : MonoBehaviour
         
         sr.sprite = sprite;
     }
-
     public void ResetMatrix()
     {
         for (int i = 0; i < matrix.GetLength(0); i++)
