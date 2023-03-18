@@ -275,7 +275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -330,22 +330,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ENV_Img: {fileID: 117606960}
+  shader: {fileID: 7200000, guid: a01300c1c1bc2674db864d22405c89f9, type: 3}
+  initializationType: 0
   agentsCount: 0
+  steps: 0
   timeScale: 1
-  resolutionScale: 0.2
-  populationPercentage: 0.15
-  decayT: 0.2
-  agentsColor: {r: 0, g: 1, b: 0, a: 1}
-  chemicalsColor: {r: 1, g: 0, b: 0, a: 1}
+  resolutionScale: 0.5
+  populationPercentage: 0.1
+  decayT: 0.1
+  agentsColor: {r: 1, g: 1, b: 1, a: 1}
+  chemColor1: {r: 0.032075405, g: 0.46653843, b: 1, a: 1}
+  chemColorShift: 0.5
+  chemColor2: {r: 0, g: 0.8460741, b: 1, a: 1}
   backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  sensoryType: 0
   rotationAngle: 45
-  sensorAngle: 45
-  sensorOffset: 4
-  sensorWidth: 1
+  sensorAngle: 22.5
+  sensorOffset: 9
   stepSize: 1
-  despositTrail: 5
+  depositTrail: 1
   pCD: 0
   sMIn: 0
+  renderAgents: 0
+  useSensors: 1
+  allowIntersection: 0
 --- !u!4 &193910038
 Transform:
   m_ObjectHideFlags: 0

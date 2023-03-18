@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
+using static NeuroForge.Functions.Image;
 
 namespace NeuroForge
 {
@@ -401,7 +402,7 @@ namespace NeuroForge
                 return smoothedTexture;
 
             }
-            
+
             public readonly struct Kernel
             {
                 public static float[,] GetKernel(KernelType kernel)
@@ -460,6 +461,12 @@ namespace NeuroForge
                     { -0.087F, -0.341F, -0.087F },
                     { -0.341F,  1.765F, -0.341F },
                     { -0.087F, -0.341F, -0.087F }
+                };
+                internal static float[,] kernel3x3_mean = new float[3,3]
+                {
+                    {1/9f, 1/9f, 1/9f},
+                    {1/9f, 1/9f, 1/9f},
+                    {1/9f, 1/9f, 1/9f}
                 };
             }
            

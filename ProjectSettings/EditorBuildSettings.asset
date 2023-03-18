@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/MainMenu.unity
+    guid: 64d18f12c0385ec4ea99bd5549f43bf8
+  - enabled: 1
+    path: Assets/Scenes/Conway.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Physarum.unity
+    guid: 9f7e292da0274e447a1541d628dafa63
   m_configObjects: {}

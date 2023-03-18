@@ -1,0 +1,44 @@
+#pragma kernel FilterKern
+
+RWStructuredBuffer<float> inputBuffer;
+RWStructuredBuffer<float> outputBuffer;
+float decayT;
+int W;
+int H;
+
+[numthreads(32, 32, 1)]
+void FilterKern(uint3 threadID : SV_DispatchThreadID)
+{
+    float kernel3x3_mean[3][3] =
+    {
+        {0.11111111f, 0.11111111f, 0.11111111f},
+        {0.11111111f, 0.11111111f, 0.11111111f},
+        {0.11111111f, 0.11111111f, 0.11111111f}
+    };
+
+    int2 inputTexcoord = int2(threadID.xy);
+
+    // mirror the input texture coordinates if they fall outside the image bounds
+    if (inputTexcoord.x < 0) {
+        inputTexcoord.x = -inputTexcoord.x;
+    }
+    else if (inputTexcoord.x >= W) {
+        inputTexcoord.x = W - 1 - (inputTexcoord.x - W + 1);
+    }
+
+    if (inputTexcoord.y < 0) {
+        inputTexcoord.y = -inputTexcoord.y;
+    }
+    else if (inputTexcoord.y >= H) {
+        inputTexcoord.y = H - 1 - (inputTexcoord.y - H + 1);
+    }
+
+    float sum = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            float pixelValue = inputBuffer[(inputTexcoord.x + i) + (inputTexcoord.y + j) * W];
+            sum += pixelValue * kernel3x3_mean[i + 1][j + 1];
+        }
+    }
+    outputBuffer[threadID.x + threadID.y * W] = sum * (1.0f - decayT);
+}
