@@ -1,0 +1,63 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+float xOffset;
+float scale;
+int width;
+int height;
+int iterations;
+
+
+struct Color
+{
+    float4 color;
+};
+RWStructuredBuffer<Color> colorBuffer;
+float colorShift;
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    // Check if x and y are in the mandelbrot set
+
+    double range = 2.0;
+    double scaleX = range / width * 1.75f;
+    double scaleY = range / height;
+
+    double x = -0.5 + (id.x - width / 2.0) * scaleX * scale + xOffset;
+    double y =        (id.y - height / 2.0) * scaleY * scale;
+
+
+    // Method
+    double realPart = x;
+    double imaginaryPart = y;
+
+    int iter = 0;
+
+    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4)
+    {
+        double tempRP = realPart * realPart - imaginaryPart * imaginaryPart + x;
+        double tempIP = 2 * realPart * imaginaryPart + y;
+
+        realPart = tempRP;
+        imaginaryPart = tempIP;
+
+        iter++;
+    }
+
+    if (iter == iterations)
+        Result[id.xy] = float4(0, 0, 0, 1);
+    else
+    {
+        if((float)iter/iterations > colorShift)
+            Result[id.xy] = colorBuffer[0].color * ((float)iter / iterations);
+        else
+            Result[id.xy] = colorBuffer[1].color * ((float)iter / iterations) / colorShift;
+    }
+}

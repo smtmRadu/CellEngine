@@ -189,6 +189,20 @@ namespace NeuroForge
 
             return flat;
         }
+        public static T[,] MatrixOf<T>(T[] flat, int w, int h)
+        {
+            T[,] matrix = new T[w, h];
+            int ind = 0;
+            for (int i = 0; i < h; i++)
+            {
+                for (int j = 0; j < w; j++)
+                {
+                    matrix[j, i] = flat[ind++];
+                }
+            }
+            return matrix;
+        }
+
         public readonly struct Activation
         {
             public static double ActivateValue(double value, ActivationType activationFunction)

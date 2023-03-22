@@ -310,6 +310,7 @@ GameObject:
   m_Component:
   - component: {fileID: 193910038}
   - component: {fileID: 193910037}
+  - component: {fileID: 193910039}
   m_Layer: 0
   m_Name: PhysarumEngine
   m_TagString: Untagged
@@ -336,17 +337,17 @@ MonoBehaviour:
   steps: 0
   timeScale: 1
   resolutionScale: 0.5
-  populationPercentage: 0.1
+  populationPercentage: 0.05
   decayT: 0.1
   agentsColor: {r: 1, g: 1, b: 1, a: 1}
-  chemColor1: {r: 0.032075405, g: 0.46653843, b: 1, a: 1}
+  chemColor1: {r: 1, g: 0.33540606, b: 0, a: 1}
   chemColorShift: 0.5
-  chemColor2: {r: 0, g: 0.8460741, b: 1, a: 1}
+  chemColor2: {r: 1, g: 0.8513187, b: 0, a: 1}
   backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  sensoryType: 0
-  rotationAngle: 45
-  sensorAngle: 22.5
-  sensorOffset: 9
+  sensoryType: 1
+  rotationAngle: 67.5
+  sensorAngle: 112.5
+  sensorOffset: 13
   stepSize: 1
   depositTrail: 1
   pCD: 0
@@ -369,6 +370,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &193910039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193910036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6675352baa50464dbc8ab00118937a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomChangeTime: {x: 5, y: 10}
+  mixTime: 3
+  decayTRange: {x: 0.1, y: 0.2}
+  timeLeftUntilNextChange: 10
 --- !u!1 &300613802
 GameObject:
   m_ObjectHideFlags: 0

@@ -52,6 +52,7 @@ public class PhysarumEngine : MonoBehaviour
 
     void Awake()
     {
+        Application.runInBackground = true;
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);
 
