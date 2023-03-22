@@ -9,6 +9,7 @@ public class FractalGenerator : MonoBehaviour
 
     [Range(0.01f,1f) ]public float resolutionScale;
     public int iterations = 1000;
+    private bool zoomIn = true;
     public float zoomingRate = 0.999f;
     public float scale = 1f;
     public float xOffset = -1f;
@@ -20,7 +21,7 @@ public class FractalGenerator : MonoBehaviour
     private float changeColorTimeLeft = 0.01f;
     public float diffuseColorTime = 3f;
     public ComputeShader compute;
-    const int THREADS = 8; // it forgots to render in parallel a part of the image so i keep on 8 threads
+    const int THREADS = 8; // it forgets to render in parallel a part of the image so i keep on 8 threads
 
     private void Awake()
     {
@@ -33,17 +34,16 @@ public class FractalGenerator : MonoBehaviour
     }
     private void Update()
     {
-
+        UpdateScales();
         ComputeMandelbrotSetGPU();
-        scale *= zoomingRate;
-        xOffset -= scale / decayFX;
 
-
+        
         changeColorTimeLeft -= Time.deltaTime;
         if(changeColorTimeLeft <= 0)
         {
             changeColorTimeLeft = changeColorFreqencyTime;
             StartCoroutine(LerpColors());
+            
         }
     }
 
@@ -60,14 +60,34 @@ public class FractalGenerator : MonoBehaviour
         return tex;
     }
 
+    void UpdateScales()
+    {
+        if (scale < 1e-4)
+            zoomIn = false;
+
+        if (scale > 1)
+            zoomIn = true;
+
+        if (zoomIn)
+        {
+            scale *= zoomingRate;
+            xOffset -= scale / decayFX;
+
+        }
+        else
+        {
+            scale /= zoomingRate;
+            xOffset += scale / decayFX;
+        }
+    }
     void ComputeMandelbrotSetGPU()
     {
         ComputeBuffer colorBuff = new ComputeBuffer(2, sizeof(float) * 4);
         colorBuff.SetData(new[] { fractalColor1 }, 0, 0, 1);
         colorBuff.SetData(new[] { fractalColor2 }, 0, 1, 1);
         
-        compute.SetBuffer(0, "colorBuffer", colorBuff);
-
+        compute.SetBuffer(0, "colorsBuffer", colorBuff);
+        
         compute.SetInt("iterations", iterations);
         compute.SetInt("width", rendTexl.width);
         compute.SetInt("height", rendTexl .height);

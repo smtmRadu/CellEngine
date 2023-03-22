@@ -1,5 +1,5 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel MandelbrotSet
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -15,12 +15,12 @@ struct Color
 {
     float4 color;
 };
-RWStructuredBuffer<Color> colorBuffer;
+RWStructuredBuffer<Color> colorsBuffer;
 float colorShift;
 
 
 [numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void MandelbrotSet (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
 
@@ -56,8 +56,16 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     else
     {
         if((float)iter/iterations > colorShift)
-            Result[id.xy] = colorBuffer[0].color * ((float)iter / iterations);
+            Result[id.xy] = colorsBuffer[0].color * ((float)iter / iterations);
         else
-            Result[id.xy] = colorBuffer[1].color * ((float)iter / iterations) / colorShift;
+            Result[id.xy] = colorsBuffer[1].color * ((float)iter / iterations) / colorShift;
     }
+}
+
+#pragma kernel JuliaSet
+
+[numthreads(8,8,1)]
+void JuliaSet(uint3 id : SV_DispatchThreadID)
+{
+
 }

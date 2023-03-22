@@ -561,7 +561,7 @@ MonoBehaviour:
   zoomingRate: 0.999
   scale: 1
   xOffset: -1
-  decayFX: 1100
+  decayFX: 1105
   fractalColor1: {r: 0, g: 0, b: 0, a: 1}
   fractalColor2: {r: 0, g: 0, b: 0, a: 1}
   colorShift: 0.5
