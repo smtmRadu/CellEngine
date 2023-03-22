@@ -340,14 +340,14 @@ MonoBehaviour:
   populationPercentage: 0.05
   decayT: 0.1
   agentsColor: {r: 1, g: 1, b: 1, a: 1}
-  chemColor1: {r: 1, g: 0.33540606, b: 0, a: 1}
+  chemColor1: {r: 0, g: 0, b: 0, a: 1}
   chemColorShift: 0.5
-  chemColor2: {r: 1, g: 0.8513187, b: 0, a: 1}
+  chemColor2: {r: 0, g: 0, b: 0, a: 1}
   backgroundColor: {r: 0, g: 0, b: 0, a: 1}
   sensoryType: 1
-  rotationAngle: 67.5
-  sensorAngle: 112.5
-  sensorOffset: 13
+  rotationAngle: 132
+  sensorAngle: 110
+  sensorOffset: 18
   stepSize: 1
   depositTrail: 1
   pCD: 0
@@ -382,7 +382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6675352baa50464dbc8ab00118937a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomChangeTime: {x: 5, y: 10}
+  randomChangeTime: {x: 8, y: 12}
   mixTime: 3
   decayTRange: {x: 0.1, y: 0.2}
   timeLeftUntilNextChange: 10
@@ -566,7 +566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172e5edbe5a08ff4cb92ab7489b807f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PEngine: {fileID: 0}
+  PEngine: {fileID: 193910037}
 --- !u!4 &1572477819
 Transform:
   m_ObjectHideFlags: 0

@@ -8,15 +8,18 @@ public class FractalGenerator : MonoBehaviour
     private RenderTexture rendTexl;
 
     [Range(0.01f,1f) ]public float resolutionScale;
-    public int iterations = 1000;
+    public int iterations = 100;
+    [Range(0f,1f)]public float iterationsIncreaseRate = 0.5f;
     private bool zoomIn = true;
     public float zoomingRate = 0.999f;
     public float scale = 1f;
+    public float minScale = 1e-5f;
     public float xOffset = -1f;
     public float decayFX = 1100;
     public Color fractalColor1 = Color.red;
     public Color fractalColor2 = Color.green;
     [Range(0.0f,1f)] public float colorShift = 0.5f;
+    public Vector2 colorShiftRange = new Vector2(0.3f, 0.6f);
     public float changeColorFreqencyTime = 5f; 
     private float changeColorTimeLeft = 0.01f;
     public float diffuseColorTime = 3f;
@@ -31,6 +34,7 @@ public class FractalGenerator : MonoBehaviour
         rendTexl = new RenderTexture(width, height, 10);
         rendTexl.enableRandomWrite = true;
         rendTexl.Create();
+        bgImage.color = Color.white;
     }
     private void Update()
     {
@@ -62,7 +66,7 @@ public class FractalGenerator : MonoBehaviour
 
     void UpdateScales()
     {
-        if (scale < 1e-4)
+        if (scale < minScale)
             zoomIn = false;
 
         if (scale > 1)
@@ -72,12 +76,14 @@ public class FractalGenerator : MonoBehaviour
         {
             scale *= zoomingRate;
             xOffset -= scale / decayFX;
+            iterations += Random.value < iterationsIncreaseRate ? 1 : 0;
 
         }
         else
         {
             scale /= zoomingRate;
             xOffset += scale / decayFX;
+            iterations -= Random.value < iterationsIncreaseRate ? 1 : 0;
         }
     }
     void ComputeMandelbrotSetGPU()
@@ -117,7 +123,7 @@ public class FractalGenerator : MonoBehaviour
 
         Color col1Targ = new Color(Random.Range(0.5f, 1f), Random.Range(0.5f, 1f), Random.Range(0.5f, 1f));
         Color col2Targ = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, .8f), Random.Range(0.2f, .8f));
-        float tgShift = Random.Range(0.3f, 0.7f);
+        float tgShift = Random.Range(colorShiftRange.x, colorShiftRange.y);
         float timeElapsed = 0f;
         while(timeElapsed < diffuseColorTime)
         {

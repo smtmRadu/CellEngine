@@ -24,12 +24,14 @@ public class PhysarumRandomizer : MonoBehaviour
 
 
 
-    public float timeLeftUntilNextChange = 10;
+    public float timeLeftUntilNextChange;
     private void Awake()
     {
+        if (this.enabled == false)
+            return;
         
         engineRef = GetComponent<PhysarumEngine>();
-        Sample_And_Apply();
+        StartCoroutine(DeployChange());
         timeLeftUntilNextChange = Random.Range(randomChangeTime.x, randomChangeTime.y);
 
     }
