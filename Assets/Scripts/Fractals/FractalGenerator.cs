@@ -24,7 +24,7 @@ public class FractalGenerator : MonoBehaviour
     private float changeColorTimeLeft = 0.01f;
     public float diffuseColorTime = 3f;
     public ComputeShader compute;
-    const int THREADS = 8; // it forgets to render in parallel a part of the image so i keep on 8 threads
+    const int THREADS = 12; // it forgets to render in parallel a part of the image so i keep on 12 threads
 
     private void Awake()
     {

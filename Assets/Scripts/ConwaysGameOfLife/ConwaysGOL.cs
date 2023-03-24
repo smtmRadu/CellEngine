@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class ConwaysGOL : MonoBehaviour
 {
+    public Camera cam;
     public int scaleDivision = 6;
     private int width;
     private int height;
@@ -16,10 +17,10 @@ public class ConwaysGOL : MonoBehaviour
     public Color aliveCellColor = Color.green;
     public Color wallColor = Color.white;
     public Color deadCellColor = Color.black;
-    public Texture2D mouseCursor;
 
     public float colorLerpPower = 0.01f;
-    Color targetColor = Color.blue;
+    Color aliveCellTargColor = Color.blue;
+    Color bgTargColor = Color.black;
 
     Resolution screenSize;
     Color[,] matrix;
@@ -39,7 +40,7 @@ public class ConwaysGOL : MonoBehaviour
         texture = new Texture2D(width, height);
         texture.filterMode = FilterMode.Point;
    
-        Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
+        
 
         for (int i = 0; i < matrix.GetLength(0); i++)
         {
@@ -62,11 +63,13 @@ public class ConwaysGOL : MonoBehaviour
         RenderMatrix();
         if (variableColor)
         {
-            aliveCellColor = Color.Lerp(aliveCellColor, targetColor, colorLerpPower);
+            aliveCellColor = Color.Lerp(aliveCellColor, aliveCellTargColor, colorLerpPower);
+            cam.backgroundColor = Color.Lerp(cam.backgroundColor, bgTargColor, colorLerpPower );
         }
         if(Time.frameCount%150 == 0) //change target color to a new one
         {
-            targetColor = new Color(Random.value,Random.value,Random.value,1);
+            aliveCellTargColor = new Color(Random.value,Random.value,Random.value, 1);
+            bgTargColor = new Color(Random.Range(0f, 0.1f), Random.Range(0f, 0.1f), Random.Range(0f, 0.1f));
         }
     }
     private void DrawCells()
@@ -108,11 +111,14 @@ public class ConwaysGOL : MonoBehaviour
 
         try
         {
-            for (int i = 0; i < wallSize; i++)
+            for (int i = -wallSize; i <= wallSize; i++)
             {
-                for (int j = 0; j < wallSize; j++)
+                for (int j = -wallSize; j <= wallSize; j++)
                 {
-                    matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = wallColor;
+
+                    float deltaDist = Vector2.Distance(mousePosition, new Vector2(mousePosition.x + i, mousePosition.y + j));
+                    if(deltaDist < wallSize)
+                        matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = wallColor;
                 }
 
             }
@@ -130,12 +136,16 @@ public class ConwaysGOL : MonoBehaviour
         mousePosition.y = mousePosition.y * height / screenSize.height;
         try
         {
-            for (int i = (int)mousePosition.x-eraserSize/2; i < mousePosition.x + eraserSize/2; i++)
+            for (int i = -eraserSize; i <= eraserSize; i++)
             {
-                for (int j = (int)mousePosition.y - eraserSize / 2; j < mousePosition.y + eraserSize/2; j++)
+                for (int j = -eraserSize; j <= eraserSize; j++)
                 {
-                    matrix[i,j] = deadCellColor;
+
+                    float deltaDist = Vector2.Distance(new Vector2(mousePosition.x, mousePosition.y), new Vector2(mousePosition.x + i, mousePosition.y + j));
+                    if (deltaDist < eraserSize)
+                        matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = deadCellColor;
                 }
+
             }
         }
         catch { }

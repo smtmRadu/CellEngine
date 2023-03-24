@@ -1,6 +1,7 @@
 using NeuroForge;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,9 @@ public class PhysarumEngine : MonoBehaviour
     public int agentsCount = 0;
     public int steps = 0;
     const int THREADS = 32; // keep like this only
+    [Header("Controls")]
+    public int penSize = 15;
+    public int eraserSize = 40;
 
     [Header("Environment Hyperparameters")]
     [Range(0.001f, 1f)] public float timeScale = 1;
@@ -44,15 +48,10 @@ public class PhysarumEngine : MonoBehaviour
     PhysarumEnvironment environment;
     private Texture2D ENV_Tex;
     private List<PhysarumAgent> agents = new List<PhysarumAgent>();
-    private float[,] kernel3x3_mean = new float[3, 3]
-    {
-        {1/9f, 1/9f, 1/9f},
-        {1/9f, 1/9f, 1/9f},
-        {1/9f, 1/9f, 1/9f}
-    };
 
     void Awake()
     {
+      
         Application.runInBackground = true;
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);
@@ -64,6 +63,10 @@ public class PhysarumEngine : MonoBehaviour
         ENV_Img.sprite = Sprite.Create(ENV_Tex, new Rect(0, 0, env_width, env_height), new Vector2(.5f, .5f));
         ENV_Img.color = Color.white;
 
+
+        penSize = (int)(penSize * resolutionScale);
+        eraserSize = (int)(eraserSize * resolutionScale);
+
         InitAgents(env_width, env_height);
 
     }
@@ -73,6 +76,7 @@ public class PhysarumEngine : MonoBehaviour
             return;
 
         DrawAgents();
+        EraseAgents();
         AgentsStep();
         FilterStep();
         RenderStep();
@@ -142,12 +146,80 @@ public class PhysarumEngine : MonoBehaviour
             return;
 
         Vector3 mousePos = Input.mousePosition * resolutionScale;
-        Vector2Int agPos = new Vector2Int((int)mousePos.x, (int)mousePos.y);
+        Vector2Int mousePosInt = new Vector2Int((int)mousePos.x, (int)mousePos.y);
 
-        if (environment.agents[agPos.x + agPos.y * environment.width] > 0)
+        
+        for (int i = -penSize; i <= penSize; i++)
+        {
+            for (int j = -penSize; j <= penSize; j++)
+            {
+
+                float deltaDist = Vector2.Distance(mousePosInt, new Vector2(mousePosInt.x + i, mousePosInt.y + j));
+                try
+                {
+                    if (deltaDist < penSize &&
+                                        environment.agents[mousePosInt.x + i + (mousePosInt.y - j) * environment.width] == 0 &&
+                                        Random.value < 0.2f)
+                    {
+                        CreateAgent(1, new Vector2Int(mousePosInt.x + i, mousePosInt.y - j), Random.Range(0f, 360f));
+                    }
+                }
+                catch { } 
+            }
+
+        }
+    }
+    void EraseAgents()
+    {
+        if (!Input.GetMouseButton(1))
             return;
 
-        CreateAgent(1, agPos, Random.Range(0f, 360f));
+        Vector3 mousePos = Input.mousePosition * resolutionScale;
+        Vector2Int mousePosInt = new Vector2Int((int)mousePos.x, (int)mousePos.y);
+
+
+        for (int i = -eraserSize; i <= eraserSize; i++)
+        {
+            for (int j = -eraserSize; j <= eraserSize; j++)
+            {
+
+                float deltaDist = Vector2.Distance(mousePosInt, new Vector2(mousePosInt.x + i, mousePosInt.y + j));
+                
+
+                if(deltaDist < eraserSize)
+                {
+                    try
+                    {
+                        int arrPos = mousePosInt.x + i + (mousePosInt.y - j) * environment.width;
+
+
+                        environment.chemicals[arrPos] = 0;
+
+                        if (environment.agents[arrPos] > 0)
+                        {
+                            environment.agents[arrPos] = 0;
+                            // Search for the agent on this position
+                            PhysarumAgent x = null;
+                            foreach (var ag in agents)
+                            {
+                                if ((int)ag.position.x + (int)ag.position.y * environment.width == arrPos)
+                                {
+                                    x = ag;
+                                    break;
+                                }
+                            }
+                            agents.Remove(x);
+                            agentsCount--;
+                        }
+                    }
+                    catch { }
+                    
+                }
+
+               
+            }
+
+        }
     }
     void CreateAgent(int speciesID, Vector2Int agentPosition, float orientationDeg)
     {

@@ -39,7 +39,6 @@ public class PhysarumAgent
         this.canIntersect = canIntersect;
     }
 
-
     
     public void MotorStage_1()
     {

@@ -7,18 +7,23 @@ using UnityEngine.UI;
 public class ConwayGameManager : MonoBehaviour
 {
     public ConwaysGOL engineRef;
+    public Texture2D mouseCursor;
+
+
     public float fadeRate = 0.95f;
-    public float appearRate = 0.99f;
+    public float appearRate = 0.9f;
     private Vector2 mouseLastPosition;
 
     public float timeStep__AfterTheyStartFading = 2f;
     [SerializeField] private float timeLeft__UntilTheyStartFading;
 
-    private bool canFade = true;
     public List<Image> toFadeImages = new List<Image>();
     public List<TMPro.TMP_Text> toFadeText = new List<TMPro.TMP_Text>();
 
-
+    private void Awake()
+    {
+        Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
+    }
     // Update is called once per frame
     void Update()
     {

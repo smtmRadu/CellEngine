@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 public class MainMenu : MonoBehaviour
 {
+    public Texture2D mouseCursor;
     [Header("Fadeing")]
     public List<Image> fadingImages = new List<Image>();
     public List<TMPro.TMP_Text> fadingText = new List<TMPro.TMP_Text>();
@@ -23,6 +25,7 @@ public class MainMenu : MonoBehaviour
 
     public void Awake()
     {
+        Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
         timeLeft__UntilTheyStartFading = timeStep__AfterTheyStartFading;
         backgroundMusicAudioSource.clip = Functions.RandomIn(backgroundMusic);
         backgroundMusicAudioSource.Play();

@@ -19,7 +19,7 @@ RWStructuredBuffer<Color> colorsBuffer;
 float colorShift;
 
 
-[numthreads(8,8,1)]
+[numthreads(12,12,1)]
 void MandelbrotSet (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!

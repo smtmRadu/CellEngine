@@ -5,11 +5,12 @@ using UnityEngine;
 
 public class PhysarumRandomizer : MonoBehaviour
 {
-    PhysarumEngine engineRef;
+    public PhysarumEngine engineRef;
+    bool isMixing = true;
 
     [Tooltip("How often a new change appears")]
-    public Vector2 randomChangeTime = new Vector2(5, 10);
-    public float mixTime = 3f;
+    public Vector2 mixTimeRange = new Vector2(2.5f, 3.5f);
+    private float mixTime = 3f;
 
     [Space]
     public Vector2 decayTRange = new Vector2(0.1f, 0.2f);
@@ -23,39 +24,34 @@ public class PhysarumRandomizer : MonoBehaviour
     List<int> stepSizeRange = new List<int>() { 1, 2};
 
 
-
-    public float timeLeftUntilNextChange;
     private void Awake()
     {
         if (this.enabled == false)
             return;
-        
-        engineRef = GetComponent<PhysarumEngine>();
-        StartCoroutine(DeployChange());
-        timeLeftUntilNextChange = Random.Range(randomChangeTime.x, randomChangeTime.y);
 
+        StartCoroutine(DeployChange(Random.Range(mixTimeRange.x/2, mixTimeRange.y/2)));
     }
     private void Update()
     {
-        timeLeftUntilNextChange -= Time.deltaTime;
-        if (timeLeftUntilNextChange > 0)
-            return;
-
-        timeLeftUntilNextChange = Random.Range(randomChangeTime.x, randomChangeTime.y);
-        StartCoroutine(DeployChange());
+        if (Input.GetKey(KeyCode.R) && !isMixing)
+            StartCoroutine(DeployChange(Random.Range(mixTimeRange.x, mixTimeRange.y)));
     }
-    IEnumerator DeployChange()
+
+    IEnumerator DeployChange(float mix_time)
     {
+        isMixing = true;
+
+        mixTime = mix_time;
         engineRef.useSensors = false;
         engineRef.allowIntersection = true;
+
         StartCoroutine(LerpColors());
         yield return new WaitForSeconds(mixTime);
 
         engineRef.useSensors = true;
         engineRef.allowIntersection = false;
         Sample_And_Apply();
-
-        
+        isMixing = false;
     }
     IEnumerator LerpColors()
     {
@@ -65,8 +61,8 @@ public class PhysarumRandomizer : MonoBehaviour
         Color Old_bg = new Color(engineRef.backgroundColor.r, engineRef.backgroundColor.g, engineRef.backgroundColor.b);
 
         //Color Targ_ag = new Color(Random.value, Random.value, Random.value);
-        Color Targ_c1 = new Color(Random.Range(0.3f, 0.8f), Random.Range(0.3f, 0.8f), Random.Range(0.3f, 0.8f));
-        Color Targ_c2 = new Color(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f));
+        Color Targ_c1 = new Color(Random.Range(0.4f, 0.8f), Random.Range(0.4f, 0.8f), Random.Range(0.3f, 0.8f));
+        Color Targ_c2 = new Color(Random.Range(0.1f, 1f), Random.Range(0.1f, 1f), Random.Range(0.1f, 0.9f));
         Color Targ_bg = new Color(Random.Range(0f, 0.1f), Random.Range(0f, 0.1f), Random.Range(0f, 0.1f));
 
         float timeElapsed = 0;
