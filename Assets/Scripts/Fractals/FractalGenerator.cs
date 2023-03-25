@@ -21,7 +21,7 @@ public class FractalGenerator : MonoBehaviour
 
     public Vector2 c;
     public float xOffset = -1f;
-    public float decayFX = 1100;
+    public float decayFX = 1108.4f;
 
     public Color fractalColor1 = Color.red;  
     public Color fractalColor2 = Color.green;

@@ -615,10 +615,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9b2f3d488f9fdb479054ff87099cc79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chance_forMandelBrot: 0.25
+  chance_forMandelBrot: 0.2
   KERNEL_INDEX: 1
   bgImage: {fileID: 1590885887}
-  resolutionScale: 0.6
+  resolutionScale: 0.5
   iterations: 100
   iterationsIncreaseRate: 10
   zoomingRate: 0.999

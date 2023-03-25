@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 
 public class PhysarumEngine : MonoBehaviour
 {
+    public TMPro.TMP_Text populationTMPro;
     public Image ENV_Img;
     public ComputeShader shader;
     public InitAgentsType initializationType;
@@ -21,7 +23,7 @@ public class PhysarumEngine : MonoBehaviour
     [Header("Environment Hyperparameters")]
     [Range(0.001f, 1f)] public float timeScale = 1;
     [Range(0.001f, 1f)] public float resolutionScale = 1;
-    [Range(0, 0.9f)] public float populationPercentage = 0.05f;
+    [Range(0, 0.9f)] public float populationPercentageInit = 0.05f;
     [Range(0, 0.5f)] public float decayT = 0.1f;
     public Color agentsColor = Color.green;
     public Color chemColor1 = Color.red;
@@ -33,9 +35,9 @@ public class PhysarumEngine : MonoBehaviour
     public SensoryType sensoryType = SensoryType.ChemoAttraction;
     [Range(0f, 180f)] public float rotationAngle = 45f;
     [Range(0f, 180f)] public float sensorAngle = 22.5f;
-    [Range(1f, 45f)] public int sensorOffset = 9;              
-    [Range(1,5)] public int stepSize = 1;
-    [Range(1,10)] public int depositTrail = 5;
+    [Range(1f, 45f)] public int sensorOffset = 9;
+    [Range(1, 5)] public int stepSize = 1;
+    [Range(1, 10)] public int depositTrail = 5;
     [Range(0f, 0.1f)] public float pCD = 0f;
     [Range(0f, 0.1f)] public float sMIn = 0;
     public const int sensorWidth = 1;
@@ -49,12 +51,14 @@ public class PhysarumEngine : MonoBehaviour
     private Texture2D ENV_Tex;
     private List<PhysarumAgent> agents = new List<PhysarumAgent>();
 
+    private int resolution;
     void Awake()
     {
-      
+
         Application.runInBackground = true;
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);
+        resolution = env_width * env_height;
 
         // Initialize environment
         environment = new PhysarumEnvironment(env_width, env_height);
@@ -81,18 +85,20 @@ public class PhysarumEngine : MonoBehaviour
         FilterStep();
         RenderStep();
         steps++;
+
+        populationTMPro.text = "Population: " + ((float)agents.Count / resolution).ToString("0.000") + "%";
     }
 
     void InitAgents(int env_width, int env_height)
     {
-        if(initializationType == InitAgentsType.Random)
+        if (initializationType == InitAgentsType.Random)
         {
-            for (int i = 0; i < populationPercentage * env_height * env_width; i++)
+            for (int i = 0; i < populationPercentageInit * env_height * env_width; i++)
             {
                 int randX = Functions.RandomRange(1, env_width);
                 int randY = Functions.RandomRange(1, env_height);
                 Vector2Int randP = new Vector2Int(randX, randY);
-                CreateAgent(1, randP, Random.Range(0f,360f));
+                CreateAgent(1, randP, Random.Range(0f, 360f));
             }
         }
         else
@@ -110,7 +116,7 @@ public class PhysarumEngine : MonoBehaviour
                             (i - c_spawn_centerX) * (i - c_spawn_centerX) +
                             (j - c_spawn_centerY) * (j - c_spawn_centerY));
 
-                    if (!(distance < c_spawn_radius && Random.value < populationPercentage))
+                    if (!(distance < c_spawn_radius && Random.value < populationPercentageInit))
                         continue;
 
                     float orientation = Mathf.Atan2(j - c_spawn_centerY, i - c_spawn_centerX) * Mathf.Rad2Deg;
@@ -148,7 +154,7 @@ public class PhysarumEngine : MonoBehaviour
         Vector3 mousePos = Input.mousePosition * resolutionScale;
         Vector2Int mousePosInt = new Vector2Int((int)mousePos.x, (int)mousePos.y);
 
-        
+
         for (int i = -penSize; i <= penSize; i++)
         {
             for (int j = -penSize; j <= penSize; j++)
@@ -159,12 +165,12 @@ public class PhysarumEngine : MonoBehaviour
                 {
                     if (deltaDist < penSize &&
                                         environment.agents[mousePosInt.x + i + (mousePosInt.y - j) * environment.width] == 0 &&
-                                        Random.value < 0.33f)
+                                        Random.value < 0.25f)
                     {
                         CreateAgent(1, new Vector2Int(mousePosInt.x + i, mousePosInt.y - j), Random.Range(0f, 360f));
                     }
                 }
-                catch { } 
+                catch { }
             }
 
         }
@@ -177,16 +183,15 @@ public class PhysarumEngine : MonoBehaviour
         Vector3 mousePos = Input.mousePosition * resolutionScale;
         Vector2Int mousePosInt = new Vector2Int((int)mousePos.x, (int)mousePos.y);
 
-
         for (int i = -eraserSize; i <= eraserSize; i++)
         {
             for (int j = -eraserSize; j <= eraserSize; j++)
             {
 
                 float deltaDist = Vector2.Distance(mousePosInt, new Vector2(mousePosInt.x + i, mousePosInt.y + j));
-                
 
-                if(deltaDist < eraserSize)
+
+                if (deltaDist < eraserSize)
                 {
                     try
                     {
@@ -213,10 +218,10 @@ public class PhysarumEngine : MonoBehaviour
                         }
                     }
                     catch { }
-                    
+
                 }
 
-               
+
             }
 
         }
@@ -230,7 +235,7 @@ public class PhysarumEngine : MonoBehaviour
         agents.Add(newAgent);
         agentsCount++;
     }
-   
+
 
     void AgentsStep()
     {
@@ -262,26 +267,26 @@ public class PhysarumEngine : MonoBehaviour
     {
         int W = environment.width;
         int H = environment.height;
-        
+
         int kernelIndex = shader.FindKernel("FilterKern");
-        
+
         shader.SetFloat("decayT", decayT);
         shader.SetInt("W", W);
         shader.SetInt("H", H);
-       
+
         ComputeBuffer inputBuffer = new ComputeBuffer(W * H, sizeof(float));
         inputBuffer.SetData(environment.chemicals);
         shader.SetBuffer(kernelIndex, "inputBuffer", inputBuffer);
-        
+
         ComputeBuffer outputBuffer = new ComputeBuffer(W * H, sizeof(float));
         outputBuffer.SetData(environment.chemicals);
         shader.SetBuffer(kernelIndex, "outputBuffer", outputBuffer);
-        
+
         int numThreadGroupsX = (W + THREADS - 1) / THREADS;
         int numThreadGroupsY = (H + THREADS - 1) / THREADS;
-              
+
         shader.Dispatch(kernelIndex, numThreadGroupsX, numThreadGroupsY, 1);
-        
+
         inputBuffer.Dispose();
         outputBuffer.GetData(environment.chemicals);
         outputBuffer.Dispose();
@@ -291,14 +296,14 @@ public class PhysarumEngine : MonoBehaviour
         Color[] pixels = new Color[environment.agents.Length];
         for (int i = 0; i < environment.agents.Length; i++)
         {
-            if(renderAgents && environment.agents[i] > 0)
+            if (renderAgents && environment.agents[i] > 0)
             {
                 // Render agents
                 pixels[i] = agentsColor;
                 continue;
             }
-            
-            if (environment.chemicals[i] > chemColorShift) 
+
+            if (environment.chemicals[i] > chemColorShift)
                 pixels[i] = Color.Lerp(chemColor2, chemColor1, (environment.chemicals[i] - chemColorShift) / chemColorShift);
             else
                 pixels[i] = Color.Lerp(backgroundColor, chemColor2, environment.chemicals[i] / chemColorShift);
@@ -307,9 +312,32 @@ public class PhysarumEngine : MonoBehaviour
         ENV_Tex.SetPixels(pixels);
         ENV_Tex.Apply();
     }
-}
 
-///  Todo: Use the matrix map only as a float[] not as a matrix for performance
+}
+//   #region Editor
+//   [CustomEditor(typeof(PhysarumEngine)), CanEditMultipleObjects]
+//   class ScriptlessCameraSensor : Editor
+//   {
+//       private static readonly string[] _dontIncludeMe = new string[] { "m_Script" };
+//   
+//       public override void OnInspectorGUI()
+//       {
+//           var script = (PhysarumEngine)target;
+//   
+//           serializedObject.Update();
+//           DrawPropertiesExcluding(serializedObject, _dontIncludeMe);
+//           serializedObject.ApplyModifiedProperties();
+//   
+//           EditorGUILayout.Separator();
+//           if (GUILayout.Button("Apply Parameters"))
+//           {
+//               script.ApplyHPChange();
+//           }
+//       }
+//   }
+//   #endregion
+
+///  
 /// 
 ///  Base settings for Chemoattractant
 ///  
