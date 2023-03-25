@@ -159,7 +159,7 @@ public class PhysarumEngine : MonoBehaviour
                 {
                     if (deltaDist < penSize &&
                                         environment.agents[mousePosInt.x + i + (mousePosInt.y - j) * environment.width] == 0 &&
-                                        Random.value < 0.2f)
+                                        Random.value < 0.33f)
                     {
                         CreateAgent(1, new Vector2Int(mousePosInt.x + i, mousePosInt.y - j), Random.Range(0f, 360f));
                     }

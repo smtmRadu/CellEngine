@@ -4,6 +4,7 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
+float2 c;
 float xOffset;
 float scale;
 int width;
@@ -16,14 +17,13 @@ struct Color
     float4 color;
 };
 RWStructuredBuffer<Color> colorsBuffer;
-float colorShift;
+float colorShift1;
+float colorShift2;
 
 
 [numthreads(12,12,1)]
 void MandelbrotSet (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
-
     // Check if x and y are in the mandelbrot set
 
     double range = 2.0;
@@ -55,17 +55,55 @@ void MandelbrotSet (uint3 id : SV_DispatchThreadID)
         Result[id.xy] = float4(0, 0, 0, 1);
     else
     {
-        if((float)iter/iterations > colorShift)
+        if((float)iter/iterations > colorShift1)
             Result[id.xy] = colorsBuffer[0].color * ((float)iter / iterations);
         else
-            Result[id.xy] = colorsBuffer[1].color * ((float)iter / iterations) / colorShift;
+            Result[id.xy] = colorsBuffer[1].color * ((float)iter / iterations) / colorShift1;
     }
 }
 
 #pragma kernel JuliaSet
 
-[numthreads(8,8,1)]
+[numthreads(12,12,1)]
 void JuliaSet(uint3 id : SV_DispatchThreadID)
 {
+    // Check if x and y are in the mandelbrot set
+
+    double range = 2.0;
+    double scaleX = range / width * 1.75f;
+    double scaleY = range / height;
+
+    double x = (id.x - width / 2.0) * scaleX * scale;
+    double y = (id.y - height / 2.0) * scaleY * scale;
+
+
+    // Method
+    double realPart = x;
+    double imaginaryPart = y;
+
+    int iter = 0;
+
+    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4)
+    {
+        double tempRP = realPart * realPart - imaginaryPart * imaginaryPart + c.x;
+        double tempIP = 2 * realPart * imaginaryPart + c.y;
+
+        realPart = tempRP;
+        imaginaryPart = tempIP;
+
+        iter++;
+    }
+
+    float ratio = (float)iter / (float)iterations;
+
+
+    if (ratio > 0.9f)
+        Result[id.xy] = lerp(colorsBuffer[0].color, float4(0,0,0,1), (ratio-0.9f)* 10.f / colorShift1);
+    else if(ratio >0.5f)
+        Result[id.xy] = lerp(colorsBuffer[1].color, colorsBuffer[0].color, (ratio - 0.5f) * 2.f/ colorShift2);
+    else if (ratio > 0.01f)
+        Result[id.xy] = lerp(colorsBuffer[2].color, colorsBuffer[1].color, (ratio - 0.01f) * 2.f / colorShift1);
+    else 
+        Result[id.xy] = lerp(float4(0, 0, 0, 1), colorsBuffer[2].color, ratio * 2.f / colorShift2);
 
 }

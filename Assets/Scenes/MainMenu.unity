@@ -615,19 +615,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9b2f3d488f9fdb479054ff87099cc79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chance_forMandelBrot: 0.25
+  KERNEL_INDEX: 1
   bgImage: {fileID: 1590885887}
   resolutionScale: 0.6
   iterations: 100
-  iterationsIncreaseRate: 0.1
+  iterationsIncreaseRate: 10
   zoomingRate: 0.999
   scale: 1
-  minScale: 0.0000001
+  minScale: 0.000001
+  c: {x: 0, y: 0}
   xOffset: -1
   decayFX: 1108.4
   fractalColor1: {r: 0, g: 0, b: 0, a: 1}
   fractalColor2: {r: 0, g: 0, b: 0, a: 1}
-  colorShift: 0.5
-  colorShiftRange: {x: 0.3, y: 0.6}
+  colorShift2: 0.5
+  colorShift1: 0.5
   changeColorFreqencyTime: 3.5
   diffuseColorTime: 2.5
   compute: {fileID: 7200000, guid: 65767eae5d737864890cc17af64f3bc2, type: 3}
