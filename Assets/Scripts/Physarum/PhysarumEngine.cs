@@ -1,11 +1,7 @@
 using NeuroForge;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
-
 
 public class PhysarumEngine : MonoBehaviour
 {
@@ -15,13 +11,12 @@ public class PhysarumEngine : MonoBehaviour
     public InitAgentsType initializationType;
     public int agentsCount = 0;
     public int steps = 0;
-    const int THREADS = 32; // keep like this only
+    public int THREADS = 32; // keep like this only
     [Header("Controls")]
     public int penSize = 15;
     public int eraserSize = 40;
 
     [Header("Environment Hyperparameters")]
-    [Range(0.001f, 1f)] public float timeScale = 1;
     [Range(0.001f, 1f)] public float resolutionScale = 1;
     [Range(0, 0.9f)] public float populationPercentageInit = 0.05f;
     [Range(0, 0.5f)] public float decayT = 0.1f;
@@ -39,7 +34,7 @@ public class PhysarumEngine : MonoBehaviour
     [Range(1, 5)] public int stepSize = 1;
     [Range(1, 10)] public int depositTrail = 5;
     [Range(0f, 0.1f)] public float pCD = 0f;
-    [Range(0f, 0.1f)] public float sMIn = 0;
+    [Range(0f, 0.1f)] public float s_Min = 0f;
     public const int sensorWidth = 1;
 
     [Header("Debug")]
@@ -60,6 +55,14 @@ public class PhysarumEngine : MonoBehaviour
         int env_height = (int)(Screen.height * resolutionScale);
         resolution = env_width * env_height;
 
+        inBuffer = new ComputeBuffer(resolution, sizeof(float));
+        outBuffer = new ComputeBuffer(resolution, sizeof(float));
+        inColorBuffer = new ComputeBuffer(3, sizeof(float) * 4);
+        outColorBuffer = new ComputeBuffer(resolution, sizeof(float) * 4);
+        
+
+        pixels = new Color[resolution];
+
         // Initialize environment
         environment = new PhysarumEnvironment(env_width, env_height);
         ENV_Tex = new Texture2D(env_width, env_height);
@@ -76,14 +79,10 @@ public class PhysarumEngine : MonoBehaviour
     }
     void Update()
     {
-        if (Time.frameCount % (int)(1f / timeScale) != 0)
-            return;
-
         DrawAgents();
         EraseAgents();
         AgentsStep();
-        FilterStep();
-        RenderStep();
+        Filter_and_Render();
         steps++;
 
         populationTMPro.text = "Population: " + ((float)agents.Count / resolution).ToString("0.000") + "%";
@@ -143,7 +142,7 @@ public class PhysarumEngine : MonoBehaviour
             agent.stepSize = stepSize;
             agent.depositTrail = depositTrail;
             agent.pCD = pCD;
-            agent.sMin = sMIn;
+            agent.sMin = s_Min;
         }
     }
     void DrawAgents()
@@ -231,7 +230,7 @@ public class PhysarumEngine : MonoBehaviour
         PhysarumAgent newAgent =
             new PhysarumAgent(speciesID, agentPosition, sensoryType, orientationDeg, rotationAngle, sensorAngle,
                               sensorOffset, stepSize, depositTrail,
-                              pCD, sMIn, environment, allowIntersection);
+                              pCD, s_Min, environment, allowIntersection);
         agents.Add(newAgent);
         agentsCount++;
     }
@@ -249,6 +248,7 @@ public class PhysarumEngine : MonoBehaviour
         //possibility of long term bias by sequential ordering
 
         Functions.Shuffle(agents);
+
         foreach (var ag in agents)
         {
             ag.MotorStage_1();
@@ -257,61 +257,52 @@ public class PhysarumEngine : MonoBehaviour
         if (!useSensors)
             return;
 
-        Functions.Shuffle(agents);
-        foreach (var ag in agents)
-        {
-            ag.SensoryStage_2();
-        }
+         System.Threading.Tasks.Parallel.ForEach(agents, x =>
+         {
+             x.SensoryStage_2();
+         });
     }
-    void FilterStep()
+
+    ComputeBuffer inBuffer;
+    ComputeBuffer outBuffer;
+    ComputeBuffer outColorBuffer;
+
+    ComputeBuffer inColorBuffer;
+    Color[] pixels;
+    void Filter_and_Render()
     {
-        int W = environment.width;
-        int H = environment.height;
-
-        int kernelIndex = shader.FindKernel("FilterKern");
-
         shader.SetFloat("decayT", decayT);
-        shader.SetInt("W", W);
-        shader.SetInt("H", H);
+        shader.SetInt("W", environment.width);
+        shader.SetInt("H", environment.height);
+        shader.SetFloat("chemColorShift", chemColorShift);
 
-        ComputeBuffer inputBuffer = new ComputeBuffer(W * H, sizeof(float));
-        inputBuffer.SetData(environment.chemicals);
-        shader.SetBuffer(kernelIndex, "inputBuffer", inputBuffer);
 
-        ComputeBuffer outputBuffer = new ComputeBuffer(W * H, sizeof(float));
-        outputBuffer.SetData(environment.chemicals);
-        shader.SetBuffer(kernelIndex, "outputBuffer", outputBuffer);
+        // IO buffers
+        inBuffer.SetData(environment.chemicals);
 
-        int numThreadGroupsX = (W + THREADS - 1) / THREADS;
-        int numThreadGroupsY = (H + THREADS - 1) / THREADS;
+        shader.SetBuffer(0, "inBuffer", inBuffer);
+        shader.SetBuffer(0, "outBuffer", outBuffer);
 
-        shader.Dispatch(kernelIndex, numThreadGroupsX, numThreadGroupsY, 1);
+        // Color buffers
+        inColorBuffer.SetData(new[] { backgroundColor }, 0, 0, 1);
+        inColorBuffer.SetData(new[] { chemColor1 }, 0, 1, 1);
+        inColorBuffer.SetData(new[] { chemColor2 }, 0, 2, 1);
 
-        inputBuffer.Dispose();
-        outputBuffer.GetData(environment.chemicals);
-        outputBuffer.Dispose();
-    }
-    void RenderStep()
-    {
-        Color[] pixels = new Color[environment.agents.Length];
-        for (int i = 0; i < environment.agents.Length; i++)
-        {
-            if (renderAgents && environment.agents[i] > 0)
-            {
-                // Render agents
-                pixels[i] = agentsColor;
-                continue;
-            }
+        shader.SetBuffer(0, "inColorBuffer", inColorBuffer);
+        shader.SetBuffer(0, "outColorBuffer", outColorBuffer);
 
-            if (environment.chemicals[i] > chemColorShift)
-                pixels[i] = Color.Lerp(chemColor2, chemColor1, (environment.chemicals[i] - chemColorShift) / chemColorShift);
-            else
-                pixels[i] = Color.Lerp(backgroundColor, chemColor2, environment.chemicals[i] / chemColorShift);
-        }
+        shader.Dispatch(
+            0, 
+            (environment.width + THREADS - 1) / THREADS, 
+            (environment.height + THREADS - 1) / THREADS, 
+            1);
 
+        outBuffer.GetData(environment.chemicals);
+        outColorBuffer.GetData(pixels);
         ENV_Tex.SetPixels(pixels);
         ENV_Tex.Apply();
     }
+
 
 }
 //   #region Editor

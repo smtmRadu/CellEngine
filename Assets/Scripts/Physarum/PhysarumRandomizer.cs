@@ -23,7 +23,7 @@ public class PhysarumRandomizer : MonoBehaviour
     public Vector2 RA_Range = new Vector2(45f, 135f);
     public Vector2 SA_Range = new Vector2(45f, 135f);
     public Vector2Int SO_Range = new Vector2Int(3, 27);
-    public Vector2Int stepSizeRange = new Vector2Int(1, 3);
+    public Vector2Int SS_Range = new Vector2Int(1, 3);
 
     private void Awake()
     {
@@ -101,7 +101,7 @@ public class PhysarumRandomizer : MonoBehaviour
         engineRef.rotationAngle = Random.Range(RA_Range.x, RA_Range.y);
         engineRef.sensorAngle = Random.Range(SA_Range.x, SA_Range.y);
         engineRef.sensorOffset = Random.Range(SO_Range.x, SO_Range.y + 1);
-        engineRef.stepSize = Random.Range(stepSizeRange.x, stepSizeRange.y + 1);
+        engineRef.stepSize = Random.Range(SS_Range.x, SS_Range.y + 1);
 
         engineRef.ApplyHPChange();
     }

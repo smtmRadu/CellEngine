@@ -1,7 +1,12 @@
 #pragma kernel FilterKern
 
-RWStructuredBuffer<float> inputBuffer;
-RWStructuredBuffer<float> outputBuffer;
+RWStructuredBuffer<float> inBuffer;
+RWStructuredBuffer<float> outBuffer;
+
+RWStructuredBuffer<float4> inColorBuffer; // 0: bgCol, 1:chemCol1, 2:chemCol2
+RWStructuredBuffer<float4> outColorBuffer;
+
+float chemColorShift;
 float decayT;
 int W;
 int H;
@@ -23,22 +28,30 @@ void FilterKern(uint3 threadID : SV_DispatchThreadID)
         inputTexcoord.x = -inputTexcoord.x;
     }
     else if (inputTexcoord.x >= W) {
-        inputTexcoord.x = W - 1 - (inputTexcoord.x - W + 1);
+        inputTexcoord.x = 2 * W - inputTexcoord.x - 2;
     }
 
     if (inputTexcoord.y < 0) {
         inputTexcoord.y = -inputTexcoord.y;
     }
     else if (inputTexcoord.y >= H) {
-        inputTexcoord.y = H - 1 - (inputTexcoord.y - H + 1);
+        inputTexcoord.y = 2 * H - inputTexcoord.y - 2;
     }
 
     float sum = 0;
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            float pixelValue = inputBuffer[(inputTexcoord.x + i) + (inputTexcoord.y + j) * W];
+            float pixelValue = inBuffer[(inputTexcoord.x + i) + (inputTexcoord.y + j) * W];
             sum += pixelValue * kernel3x3_mean[i + 1][j + 1];
         }
     }
-    outputBuffer[threadID.x + threadID.y * W] = sum * (1.0f - decayT);
+    sum *= (1.0f - decayT);
+
+    outBuffer[threadID.x + threadID.y * W] = sum;
+    if (sum > chemColorShift)
+        outColorBuffer[threadID.x + threadID.y * W] = lerp(inColorBuffer[2], inColorBuffer[1], (sum - chemColorShift) / chemColorShift);
+    else   
+        outColorBuffer[threadID.x + threadID.y * W] = lerp(inColorBuffer[0], inColorBuffer[2], sum / chemColorShift);
+
+
 }

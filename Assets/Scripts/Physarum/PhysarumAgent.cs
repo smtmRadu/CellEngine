@@ -1,3 +1,4 @@
+using NeuroForge;
 using UnityEngine;
 
 
@@ -18,7 +19,7 @@ public class PhysarumAgent
     public int stepSize;
     public int depositTrail;
     public float pCD; // prob of random change in direction
-    public float sMin;
+    public float sMin; // sensivity threshold
     public bool canIntersect;
    
 
@@ -105,7 +106,6 @@ public class PhysarumAgent
         else
             ChemoRepulsion(F, FL, FR);
     }
-
     public void ChemoAttraction(float F, float FL, float FR)
     {
         if (F > FL && F > FR)
@@ -116,7 +116,7 @@ public class PhysarumAgent
         else if (F < FL && F < FR)
         {
             //Rotate randomly to left or right by RA
-            if (Random.value < 0.5f)
+            if (Functions.randomValue < 0.5)
                 orientationDegrees += rotationAngle; // left
             else
                 orientationDegrees -= rotationAngle; // right
@@ -147,7 +147,7 @@ public class PhysarumAgent
         {
 
             //Rotate randomly to left or right by RA
-            if (Random.value < 0.5f)
+            if (Functions.randomValue < 0.5)
                 orientationDegrees += rotationAngle; // left
             else
                 orientationDegrees -= rotationAngle; // right
@@ -167,4 +167,6 @@ public class PhysarumAgent
             // continue facing same direction
         }
     }
+
+
 }

@@ -623,8 +623,8 @@ MonoBehaviour:
   iterationsIncreaseRate: 10
   zoomingRate: 0.999
   scale: 1
-  minScale: 0.000001
   c: {x: 0, y: 0}
+  c_modif_rate: 1
   xOffset: -1
   decayFX: 1108.4
   fractalColor1: {r: 0, g: 0, b: 0, a: 1}

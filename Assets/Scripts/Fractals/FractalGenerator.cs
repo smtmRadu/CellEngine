@@ -1,6 +1,7 @@
 using NeuroForge;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,9 +18,10 @@ public class FractalGenerator : MonoBehaviour
     private bool zoomIn = true;
     public float zoomingRate = 0.999f;
     public float scale = 1f;
-    public float minScale = 1e-5f;
+    const float minScale = 1e-6f;
 
     public Vector2 c;
+    public float c_modif_rate = 0.99999f;
     public float xOffset = -1f;
     public float decayFX = 1108.4f;
 
@@ -43,7 +45,8 @@ public class FractalGenerator : MonoBehaviour
         new Vector2(-1.23f, -0.11f),
         new Vector2(-1.23f, 0.1f),
         new Vector2(-1.23456f, 0.107f),
-        new Vector2(-0.054004f,0.68f)
+        new Vector2(-0.054004f,0.68f),
+        new Vector2(-0.74008f, 0.148788f),
     };
 
 
@@ -66,7 +69,9 @@ public class FractalGenerator : MonoBehaviour
         UpdateScales();
         ComputeFractal();
 
-        
+        // Input from user
+        c_modif_rate += Input.mouseScrollDelta.y * 1e-5f * scale;
+
         changeColorTimeLeft -= Time.deltaTime;
         if(changeColorTimeLeft <= 0)
         {
@@ -110,6 +115,9 @@ public class FractalGenerator : MonoBehaviour
             xOffset += scale / decayFX;
             iterations -= Time.frameCount % iterationsIncreaseRate == 0 ? 1 : 0;
         }
+
+        c.x *= c_modif_rate;
+        c.y *= c_modif_rate;
     }
     void ComputeFractal()
     {
@@ -143,7 +151,7 @@ public class FractalGenerator : MonoBehaviour
     }
 
     IEnumerator LerpColors()
-    {
+    {             
         Color col1Old = new Color(fractalColor1.r, fractalColor1.g, fractalColor1.b);
         Color col2Old = new Color(fractalColor2.r, fractalColor2.g, fractalColor2.b);
 
@@ -167,7 +175,7 @@ public class FractalGenerator : MonoBehaviour
             fractalColor2 = Color.Lerp(col2Old, col2Targ, tm_lerp);
 
             colorShift1 = Mathf.Lerp(oldShift1, tgShift1, tm_lerp);
-            colorShift2 = Mathf.Lerp(oldShift2, tgShift2, tm_lerp);          
+            colorShift2 = Mathf.Lerp(oldShift2, tgShift2, tm_lerp);
         }
     }
 }

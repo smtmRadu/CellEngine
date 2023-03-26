@@ -1,36 +1,47 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
-using static NeuroForge.Functions.Image;
+
 
 namespace NeuroForge
 {
-    public struct Functions
-    {
-        public static double RandomGaussian(double mean = 0, double stddev = 1)
-        {         
-            System.Random rng = new System.Random();
-            double x1 = 1 - rng.NextDouble();
-            double x2 = 1 - rng.NextDouble();
-
-            double y1 = Math.Sqrt(-2.0 * Math.Log(x1)) * Math.Cos(2.0 * Math.PI * x2);
-            return y1 * stddev + mean;          
+    public class Functions
+    {       
+        static System.Random rand01 = new System.Random((int)Time.time);
+        public static double randomValue
+        {
+            get { lock (rand01) return rand01.NextDouble(); }
         }
-        public static double RandomValue() => new System.Random().NextDouble();
-        public static double RandomRange(double minInclusive, double maxExclusive) => new System.Random().NextDouble() * (maxExclusive - minInclusive) + minInclusive;
-        public static int RandomRange(int minInclusive, int maxExclusive) => new System.Random().Next(minInclusive, maxExclusive);
+        public static double RandomGaussian(double mean = 0, double stddev = 1)
+        {
+            lock (rand01)
+            {
+                double x1 = 1 - rand01.NextDouble();
+                double x2 = 1 - rand01.NextDouble();
+
+                double y1 = Math.Sqrt(-2.0 * Math.Log(x1)) * Math.Cos(2.0 * Math.PI * x2);
+                return y1 * stddev + mean;
+            }
+        }
+        public static double RandomRange(double minInclusive, double maxExclusive)
+        {
+            lock (rand01)
+                return rand01.NextDouble() * (maxExclusive - minInclusive) + minInclusive;
+        }
+        public static int RandomRange(int minInclusive, int maxExclusive)
+        {
+            lock (rand01)
+                return rand01.Next(minInclusive, maxExclusive);
+        }
         public static T RandomIn<T>(IEnumerable<T> values, List<float> unormProbs = null)
         {
             if (unormProbs == null)
             {
-                int randIndex = UnityEngine.Random.Range(0, values.Count());
+                int randIndex = RandomRange(0, values.Count());
                 return values.ElementAtOrDefault(randIndex);
             }
             // recommended to let it as it is
@@ -39,8 +50,8 @@ namespace NeuroForge
                 if (unormProbs[i] <= 0)
                     unormProbs[i] = 1e-8f;
             }
+            float random = (float)rand01.NextDouble() * unormProbs.Sum();
 
-            float random = (float)RandomValue() * unormProbs.Sum();
             int index = 0; // dont modify this and that -1 at the end, is case for 0 0 0 0 on probs
 
             while (random > 0)
@@ -79,18 +90,17 @@ namespace NeuroForge
             }
         }
         public static void Shuffle<T>(List<T> list)
-        {
-            var random = new System.Random();
-            
-            for (int i = 0; i < list.Count; i++)
+        {       
+            lock(rand01)
             {
-                int j = random.Next(0, list.Count - 1);
-                T temp = list[i];
-                list[i] = list[j];
-                list[j] = temp;
-            }
-            
-           
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int j = rand01.Next(0, list.Count - 1);
+                    T temp = list[i];
+                    list[i] = list[j];
+                    list[j] = temp;
+                }
+            }                
         }
         public static void Print(IEnumerable array, string tag = null)
         {
