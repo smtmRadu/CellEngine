@@ -23,7 +23,7 @@ public class ConwaysGOL : MonoBehaviour
     Color bgTargColor = Color.black;
 
     Resolution screenSize;
-    Color[,] matrix;
+    Color[] matrix;
     Texture2D texture;
     SpriteRenderer sr;
     public bool variableColor = true;
@@ -31,27 +31,19 @@ public class ConwaysGOL : MonoBehaviour
     private void Awake()
     {
         screenSize = Screen.currentResolution;
-        width = screenSize.width/scaleDivision;
-        height = screenSize.height/scaleDivision;
+        width = screenSize.width / scaleDivision;
+        height = screenSize.height / scaleDivision;
 
         Application.targetFrameRate = 45;
         sr = GetComponent<SpriteRenderer>();
-        matrix = new Color[width, height];
+        matrix = new Color[width * height];
         texture = new Texture2D(width, height);
         texture.filterMode = FilterMode.Point;
-   
-        
 
-        for (int i = 0; i < matrix.GetLength(0); i++)
+
+        for (int i = 0; i < matrix.Length; i++)
         {
-            for (int j = 0; j < matrix.GetLength(1); j++)
-            {
-                try
-                {
-                    matrix[i, j] = deadCellColor;
-                }
-                catch { }
-            }
+            matrix[i] = deadCellColor;
         }
     }
     void Update()
@@ -64,11 +56,11 @@ public class ConwaysGOL : MonoBehaviour
         if (variableColor)
         {
             aliveCellColor = Color.Lerp(aliveCellColor, aliveCellTargColor, colorLerpPower);
-            cam.backgroundColor = Color.Lerp(cam.backgroundColor, bgTargColor, colorLerpPower );
+            cam.backgroundColor = Color.Lerp(cam.backgroundColor, bgTargColor, colorLerpPower);
         }
-        if(Time.frameCount%150 == 0) //change target color to a new one
+        if (Time.frameCount % 150 == 0) //change target color to a new one
         {
-            aliveCellTargColor = new Color(Random.value,Random.value,Random.value, 1);
+            aliveCellTargColor = new Color(Random.value, Random.value, Random.value, 1);
             bgTargColor = new Color(Random.Range(0f, 0.1f), Random.Range(0f, 0.1f), Random.Range(0f, 0.1f));
         }
     }
@@ -86,19 +78,19 @@ public class ConwaysGOL : MonoBehaviour
         try
         {
             // boat
-            if (matrix[(int)mousePosition.x, (int)mousePosition.y] == deadCellColor)
-                matrix[(int)mousePosition.x, (int)mousePosition.y] = aliveCellColor;
-            if (matrix[(int)mousePosition.x + 1, (int)mousePosition.y] == deadCellColor)
-                matrix[(int)mousePosition.x + 1, (int)mousePosition.y] = aliveCellColor;
-            if (matrix[(int)mousePosition.x, (int)mousePosition.y - 1] == deadCellColor)
-                matrix[(int)mousePosition.x, (int)mousePosition.y - 1] = aliveCellColor;
-            if (matrix[(int)mousePosition.x + 2, (int)mousePosition.y - 1] == deadCellColor)
-                matrix[(int)mousePosition.x + 2, (int)mousePosition.y - 1] = aliveCellColor;
-            if (matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 2] == deadCellColor)
-                matrix[(int)mousePosition.x + 1, (int)mousePosition.y - 2] = aliveCellColor;                          
+            if (matrix[(int)mousePosition.x + (int)mousePosition.y * width] == deadCellColor)
+                matrix[(int)mousePosition.x + (int)mousePosition.y * width] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 1 + (int)mousePosition.y * width] == deadCellColor)
+                matrix[(int)mousePosition.x + 1 + (int)mousePosition.y * width] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + ((int)mousePosition.y - 1) * width] == deadCellColor)
+                matrix[(int)mousePosition.x + ((int)mousePosition.y - 1) * width] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 2 + ((int)mousePosition.y - 1) * width] == deadCellColor)
+                matrix[(int)mousePosition.x + 2 + ((int)mousePosition.y - 1) * width] = aliveCellColor;
+            if (matrix[(int)mousePosition.x + 1 + ((int)mousePosition.y - 2) * width] == deadCellColor)
+                matrix[(int)mousePosition.x + 1 + ((int)mousePosition.y - 2) * width] = aliveCellColor;
         }
         catch { }
-       
+
     }
     private void DrawWalls()
     {
@@ -117,8 +109,8 @@ public class ConwaysGOL : MonoBehaviour
                 {
 
                     float deltaDist = Vector2.Distance(mousePosition, new Vector2(mousePosition.x + i, mousePosition.y + j));
-                    if(deltaDist < wallSize)
-                        matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = wallColor;
+                    if (deltaDist < wallSize)
+                        matrix[(int)mousePosition.x + i + ((int)mousePosition.y - j) * width] = wallColor;
                 }
 
             }
@@ -131,8 +123,8 @@ public class ConwaysGOL : MonoBehaviour
             return;
 
         Vector2 mousePosition = Input.mousePosition;
-        
-        mousePosition.x = mousePosition.x *  width / screenSize.width;
+
+        mousePosition.x = mousePosition.x * width / screenSize.width;
         mousePosition.y = mousePosition.y * height / screenSize.height;
         try
         {
@@ -143,7 +135,7 @@ public class ConwaysGOL : MonoBehaviour
 
                     float deltaDist = Vector2.Distance(new Vector2(mousePosition.x, mousePosition.y), new Vector2(mousePosition.x + i, mousePosition.y + j));
                     if (deltaDist < eraserSize)
-                        matrix[(int)mousePosition.x + i, (int)mousePosition.y - j] = deadCellColor;
+                        matrix[(int)mousePosition.x + i + ((int)mousePosition.y - j) * width] = deadCellColor;
                 }
 
             }
@@ -152,24 +144,24 @@ public class ConwaysGOL : MonoBehaviour
     }
     void ConwayGameOfLifeAlgorithm()
     {
-        for (int i = 0; i < matrix.GetLength(0); i++)
+        for (int i = 0; i < width; i++)
         {
-            for (int j = 0; j < matrix.GetLength(1); j++)
+            for (int j = 0; j < height; j++)
             {
                 int neighboursCount = NeighboursCount(i, j);
-                if (IsWall(matrix[i, j]))
+                if (IsWall(matrix[i + (j) * width]))
                     continue;
-                if(IsDead(matrix[i,j]) && neighboursCount == 3) 
+                if (IsDead(matrix[i + (j) * width]) && neighboursCount == 3)
                 {
-                    matrix[i, j] = aliveCellColor;
+                    matrix[i + (j) * width] = aliveCellColor;
                 }
-                else if (IsAlive(matrix[i,j]) && neighboursCount >= 2 && neighboursCount <= 3)
+                else if (IsAlive(matrix[i + (j) * width]) && neighboursCount >= 2 && neighboursCount <= 3)
                 {
                     // stays alive
                 }
                 else
                 {
-                    matrix[i, j] = deadCellColor;
+                    matrix[i + (j) * width] = deadCellColor;
                 }
             }
         }
@@ -179,7 +171,7 @@ public class ConwaysGOL : MonoBehaviour
         int count = 0;
         try
         {
-            if (IsAlive(matrix[x,y+1]))
+            if (IsAlive(matrix[x + (y + 1) * width]))
             {
                 count++;
             }
@@ -187,7 +179,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x+1, y + 1]))
+            if (IsAlive(matrix[x + 1 + (y + 1) * width]))
             {
                 count++;
             }
@@ -195,7 +187,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x + 1, y]))
+            if (IsAlive(matrix[x + 1 + (y) * width]))
             {
                 count++;
             }
@@ -203,7 +195,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x + 1, y - 1]))
+            if (IsAlive(matrix[x + 1 + (y - 1) * width]))
             {
                 count++;
             }
@@ -212,7 +204,7 @@ public class ConwaysGOL : MonoBehaviour
 
         try
         {
-            if (IsAlive(matrix[x, y - 1]))
+            if (IsAlive(matrix[x + (y - 1) * width]))
             {
                 count++;
             }
@@ -220,7 +212,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x - 1, y - 1]))
+            if (IsAlive(matrix[x - 1 + (y - 1) * width]))
             {
                 count++;
             }
@@ -228,7 +220,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x - 1, y]))
+            if (IsAlive(matrix[x - 1 + (y) * width]))
             {
                 count++;
             }
@@ -236,7 +228,7 @@ public class ConwaysGOL : MonoBehaviour
         catch { }
         try
         {
-            if (IsAlive(matrix[x - 1, y + 1]))
+            if (IsAlive(matrix[x - 1 + (y + 1) * width]))
             {
                 count++;
             }
@@ -266,30 +258,18 @@ public class ConwaysGOL : MonoBehaviour
 
     void RenderMatrix()
     {
-        Color[] flatPixels = new Color[width * height];
-
-        for (int h = 0; h < matrix.GetLength(1); h++)
-        {
-            for (int w = 0; w < matrix.GetLength(0); w++)
-            {           
-                flatPixels[h*width + w] = matrix[w, h];
-            }
-        }
-        texture.SetPixels(flatPixels);
+        texture.SetPixels(matrix);
         texture.Apply();
-       
+
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, width, height), Vector2.zero);
-        
+
         sr.sprite = sprite;
     }
     public void ResetMatrix()
     {
-        for (int i = 0; i < matrix.GetLength(0); i++)
+        for (int i = 0; i < matrix.Length; i++)
         {
-            for (int j = 0; j < matrix.GetLength(1); j++)
-            {
-                matrix[i, j] = deadCellColor;
-            }
+            matrix[i] = deadCellColor;
         }
     }
     public void QuitApp()
@@ -299,7 +279,7 @@ public class ConwaysGOL : MonoBehaviour
     public void SetVariableColor()
     {
         variableColor = !variableColor;
-        
+
     }
 }
 public enum Shape

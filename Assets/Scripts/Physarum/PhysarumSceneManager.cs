@@ -27,14 +27,7 @@ public class PhysarumSceneManager : MonoBehaviour
     void Update()
     {
         FadeReferenceControls();
-        HandleIO();
 
-    }
-
-    void HandleIO()
-    {
-        if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
-            SceneManager.LoadScene("MainMenu");
     }
 
     void FadeReferenceControls()

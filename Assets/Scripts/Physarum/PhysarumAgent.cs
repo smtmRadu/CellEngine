@@ -15,35 +15,35 @@ public class PhysarumAgent
     public float rotationAngle;
     public float sensorAngle; //22.5F
     public int sensorOffset;
-    public const int sensorWidth = 1;
     public int stepSize;
     public int depositTrail;
     public float pCD; // prob of random change in direction
     public float sMin; // sensivity threshold
     public bool canIntersect;
-   
 
-    public PhysarumAgent(int speciesID, Vector2 position, SensoryType sensorType, float orientationDegrees, float rotationAngle, float sensorAngle, int sensorOffset, int stepSize, int depositTrail, float pCD, float sMin, PhysarumEnvironment env, bool canIntersect)
+    public const int sensorWidth = 1;
+    public const float otherSpecRepulsionStrength = 10f;
+    public PhysarumAgent(Vector2 position, float orientationDegrees, SpeciesParameters param, PhysarumEnvironment env)
     {
-        this.speciesID = speciesID;
-        this.position = position;
-        this.sensorType = sensorType;
+        this.speciesID = param.speciesID;
+        this.position = position;     
         this.orientationDegrees = orientationDegrees;
-        this.rotationAngle = rotationAngle;
-        this.sensorAngle = sensorAngle;
-        this.sensorOffset = sensorOffset;
-        this.stepSize = stepSize;
-        this.depositTrail = depositTrail;
-        this.pCD = pCD;
-        this.sMin = sMin;
+        this.sensorType = param.sensoryType;
+        this.rotationAngle = param.RA;
+        this.sensorAngle = param.SA;
+        this.sensorOffset = param.SO;
+        this.stepSize = param.SS;
+        this.depositTrail = param.depT;
+        this.pCD = param.pCD;
+        this.sMin = param.sMin;
         this.env = env;
-        this.canIntersect = canIntersect;
+        this.canIntersect = param.canIntersect;
     }
 
     
     public void MotorStage_1()
     {
-        if(Random.value < pCD)
+        if(Functions.randomValue < pCD)
             orientationDegrees = Random.Range(0f, 360f);
 
         
@@ -56,23 +56,28 @@ public class PhysarumAgent
         float newY = position.y + Mathf.Sin(orientationRadians) * stepSize;
 
         // If can move -> deposit trail in new location
-        if(
+            if (
             newX >= 0 && newX < env.width &&
             newY >= 0 && newY < env.height &&
             (env.agents[(int)newX + (int)newY * env.width] == 0 || canIntersect)
-          )
-        {
-            position.x = newX;
-            position.y = newY;
+            )
+            {
+                position.x = newX;
+                position.y = newY;
 
-            env.agents[(int)oldX + (int)oldY * env.width] = 0;
-            env.agents[(int)position.x + (int)position.y * env.width] = speciesID;
-            env.chemicals[(int)position.x + (int)position.y * env.width] += depositTrail;
-        }
-        else // -> give complete new orientation
-        {
-            orientationDegrees = Random.Range(0f, 360f);
-        }
+                env.agents[(int)oldX + (int)oldY * env.width] = 0;
+
+                int location = (int)position.x + (int)position.y * env.width;
+                env.agents[location] = speciesID;
+                env.chemicals[location] += depositTrail;
+                env.spec_mask[location] = speciesID;
+            }
+            else // -> give complete new orientation
+            {
+                orientationDegrees = Random.Range(0f, 360f);
+            }
+      
+        
     }
     public void SensoryStage_2()
     {
@@ -80,25 +85,54 @@ public class PhysarumAgent
         float F = 0;
         float FL = 0;
         float FR = 0;
+
         float dirRad = Mathf.Deg2Rad * orientationDegrees;
+
+        // Mechanism: 
+        // On chemoattraction, if the attractant is from other species, the chemical is purely negates to do not create attraction for it
+        // On chemorepulsion, if the attractant is from other species, the chemical is doubled to invoke repulive strength
+
 
         // Sample F
         float F_xPos = position.x + Mathf.Cos(dirRad) * sensorOffset;
         float F_yPos = position.y + Mathf.Sin(dirRad) * sensorOffset;
         if (F_xPos < env.width && F_yPos < env.height && F_xPos >= 0 && F_yPos >= 0)
-            F = env.chemicals[(int)F_xPos + (int)F_yPos * env.width];
-            
+        {
+            int p = (int)F_xPos + (int)F_yPos * env.width;
+            if (env.spec_mask[p] == speciesID)
+                F = env.chemicals[p];
+            else
+                F = sensorType == SensoryType.ChemoAttraction ? 
+                    -env.chemicals[p] : 
+                    otherSpecRepulsionStrength * env.chemicals[p];
+
+        }
         // Sample FL
         float FL_xPos = position.x + Mathf.Cos(dirRad + Mathf.Deg2Rad * sensorAngle) * sensorOffset;
         float FL_yPos = position.y + Mathf.Sin(dirRad + Mathf.Deg2Rad * sensorAngle) * sensorOffset;
         if (FL_xPos < env.width && FL_yPos < env.height && FL_xPos >= 0 && FL_yPos >= 0)
-            FL = env.chemicals[(int)FL_xPos + (int)FL_yPos * env.width];
-
+        {
+            int p = (int)FL_xPos + (int)FL_yPos * env.width;
+            if (env.spec_mask[p] == speciesID)
+                FL = env.chemicals[p];
+            else
+                FL = sensorType == SensoryType.ChemoAttraction ? 
+                    -env.chemicals[p] : 
+                    otherSpecRepulsionStrength * env.chemicals[p];
+        }
         // Sample FR
         float FR_xPos = position.x + Mathf.Cos(dirRad - Mathf.Deg2Rad * sensorAngle) * sensorOffset;
         float FR_yPos = position.y + Mathf.Sin(dirRad - Mathf.Deg2Rad * sensorAngle) * sensorOffset;
         if (FR_xPos < env.width && FR_yPos < env.height && FR_xPos >= 0 && FR_yPos >= 0)
-            FR = env.chemicals[(int)FR_xPos + (int)FR_yPos * env.width];
+        {
+            int p = (int)FR_xPos + (int)FR_yPos * env.width;
+            if (env.spec_mask[p] == speciesID)
+                FR = env.chemicals[p];
+            else
+                FR = sensorType == SensoryType.ChemoAttraction ? 
+                    -env.chemicals[p] : 
+                    otherSpecRepulsionStrength * env.chemicals[p];
+        }
 
 
         if (sensorType == SensoryType.ChemoAttraction)
@@ -138,7 +172,7 @@ public class PhysarumAgent
     }
     public void ChemoRepulsion(float F, float FL, float FR)
     {
-        if(F < FL && F < FR)
+        if (F < FL && F < FR)
         {
             // stay facing same direction
             return;
