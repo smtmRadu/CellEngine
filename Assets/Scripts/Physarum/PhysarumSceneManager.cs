@@ -1,7 +1,6 @@
+using NeuroForge;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PhysarumSceneManager : MonoBehaviour
@@ -9,10 +8,15 @@ public class PhysarumSceneManager : MonoBehaviour
     public PhysarumEngine PEngine;
     public Texture2D mouseCursor;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public List<AudioClip> bgMusic = new List<AudioClip>();
+
     [Header("Fadeing")]
     public float fadeRate = 0.95f;
     public float appearRate = 0.9f;
     private Vector2 mouseLastPosition;
+    public TMPro.TMP_Text fpsCounterText;
 
     public float timeStep__AfterTheyStartFading = 2f;
     [SerializeField] private float timeLeft__UntilTheyStartFading;
@@ -24,9 +28,19 @@ public class PhysarumSceneManager : MonoBehaviour
     {
         Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
     }
+    private void Start()
+    {
+        if(bgMusic.Count > 0)
+        {
+            audioSource.clip = Functions.RandomIn(bgMusic);
+            audioSource.Play();
+        }
+        
+    }
     void Update()
     {
         FadeReferenceControls();
+        fpsCounterText.text = (1f / Time.deltaTime).ToString("0.0 FPS");
 
     }
 

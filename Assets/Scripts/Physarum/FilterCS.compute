@@ -10,13 +10,17 @@ RWStructuredBuffer<float4> colors1_buff_in; // chemColor1 from all species
 RWStructuredBuffer<float4> colors2_buff_in; // chemColor2 from all species
 float chemColorShift;
 
-
 float decayT;
 int W;
 int H;
 
+static const float3x3 kernel = float3x3(
+    0.11111111f, 0.11111111f, 0.11111111f,
+    0.11111111f, 0.11111111f, 0.11111111f,
+    0.11111111f, 0.11111111f, 0.11111111f
+);
 
-int ArgMax(float values[6])
+int ArgMax(float values[6]) // three spots where you need to modify 6 if needed*
 {
     float maxValue = -9999.f;
     int maxIndex = 0;
@@ -36,13 +40,6 @@ int ArgMax(float values[6])
 [numthreads(32, 32, 1)]
 void FilterKern(uint3 threadID : SV_DispatchThreadID)
 {
-    float kernel3x3_mean[3][3] =
-    {
-        { 0.11111111f, 0.11111111f, 0.11111111f },
-        { 0.11111111f, 0.11111111f, 0.11111111f },
-        { 0.11111111f, 0.11111111f, 0.11111111f }
-    };
-
     int2 inputTexcoord = int2(threadID.xy);
 
     // mirror the input texture coordinates if they fall outside the image bounds
@@ -74,7 +71,7 @@ void FilterKern(uint3 threadID : SV_DispatchThreadID)
             
             // Update color
             float pixelValue = chemicals_buff_in[pos];
-            sum += pixelValue * kernel3x3_mean[i + 1][j + 1];
+            sum += pixelValue * kernel[i + 1][j + 1];
             
             // Update species
             int specMask = spec_mask_buff_in[pos];
@@ -82,17 +79,18 @@ void FilterKern(uint3 threadID : SV_DispatchThreadID)
         }
     }
     // find which species has the most chemical in the zone
-    int spc = ArgMax(spec_strength);
-    
+    int spc = ArgMax(spec_strength);  
     sum *= (1.0f - decayT);
+    
+    int P = threadID.x + threadID.y * W;
 
-    chemicals_buff_out[threadID.x + threadID.y * W] = sum;
-    spec_mask_buff_out[threadID.x + threadID.y * W] = spc;
+    chemicals_buff_out[P] = sum;
+    spec_mask_buff_out[P] = spc;
     
     if (sum > chemColorShift)
-        pix_displ_buff_out[threadID.x + threadID.y * W] = lerp(colors2_buff_in[spc], colors1_buff_in[spc], (sum - chemColorShift) / chemColorShift);
+        pix_displ_buff_out[P] = lerp(colors2_buff_in[spc], colors1_buff_in[spc], (sum - chemColorShift) / chemColorShift);
     else
-        pix_displ_buff_out[threadID.x + threadID.y * W] = lerp(colors1_buff_in[0], colors2_buff_in[spc], sum / chemColorShift);
+        pix_displ_buff_out[P] = lerp(colors1_buff_in[0], colors2_buff_in[spc], sum / chemColorShift);
 
 }
 

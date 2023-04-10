@@ -634,6 +634,7 @@ MonoBehaviour:
   changeColorFreqencyTime: 3.5
   diffuseColorTime: 2.5
   compute: {fileID: 7200000, guid: 65767eae5d737864890cc17af64f3bc2, type: 3}
+  THREADS: 32
 --- !u!4 &1098662358
 Transform:
   m_ObjectHideFlags: 0

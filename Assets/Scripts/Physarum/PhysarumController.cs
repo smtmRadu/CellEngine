@@ -1,11 +1,8 @@
 using NeuroForge;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static UnityEngine.GraphicsBuffer;
 
 public class PhysarumController : MonoBehaviour
 {
@@ -48,6 +45,7 @@ public class PhysarumController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
             engineRef.AllowIntersection();
+
         if(Input.GetKeyUp(KeyCode.S))
             engineRef.DisallowIntersection();
 
@@ -60,9 +58,6 @@ public class PhysarumController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
             engineRef.CutSpecies();
 
-        if (Input.GetKeyDown(KeyCode.A))
-            engineRef.ApplyParameters();
-
         if (Input.GetMouseButton(0))
             DrawAgents();
 
@@ -71,6 +66,7 @@ public class PhysarumController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("MainMenu");
+
 
     }
     void DrawAgents()
@@ -89,7 +85,7 @@ public class PhysarumController : MonoBehaviour
                 {
                     if (deltaDist < penSize &&
                     engineRef.environment.agents[mousePosInt.x + i + (mousePosInt.y - j) * engineRef.environment.width] == 0 &&
-                                        Random.value < 0.25f)
+                                        Random.value < 0.33f)
                     {
                         engineRef._createAgent(engineRef.speciesCount, new Vector2Int(mousePosInt.x + i, mousePosInt.y - j), Random.Range(0f, 360f));
                     }
@@ -126,17 +122,18 @@ public class PhysarumController : MonoBehaviour
                         {
                             engineRef.environment.agents[arrPos] = 0;
                             // Search for the agent on this position
-                            PhysarumAgent x = null;
+                            int indexToRem = -1;
+                            int indx = 0;
                             foreach (var ag in engineRef.agents)
                             {
                                 if ((int)ag.position.x + (int)ag.position.y * engineRef.environment.width == arrPos)
                                 {
-                                    x = ag;
+                                    indexToRem = indx;
                                     break;
                                 }
+                                indx++;
                             }
-                            engineRef.agents.Remove(x);
-                            engineRef.agentsCount--;
+                            engineRef.agents.RemoveAt(indexToRem);
                         }
                     }
                     catch { }
@@ -215,14 +212,14 @@ public class PhysarumController : MonoBehaviour
         {
             if (s_param == null)
                 continue;
-            s_param.sensoryType = Functions.RandomIn(sensoryTypesRange);
+
+            s_param.sensorType = Functions.RandomIn(sensoryTypesRange);
             s_param.RA = Random.Range(RA_Range.x, RA_Range.y);
             s_param.SA = Random.Range(SA_Range.x, SA_Range.y);
             s_param.SO = Random.Range(SO_Range.x, SO_Range.y + 1);
             s_param.SS = Random.Range(SS_Range.x, SS_Range.y + 1);
         }
         
-        engineRef.ApplyParameters();
     }
 
     struct ChemColors

@@ -2,41 +2,46 @@ using NeuroForge;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class PhysarumEngine : MonoBehaviour
 {
     public TMPro.TMP_Text populationTMPro;
     public TMPro.TMP_Text speciesNoTMPro;
     public Image ENV_Img;
-    public ComputeShader shader;
     public InitAgentsType initializationType;
     public PhysarumEnvironment environment;
     private Texture2D ENV_Tex;
+    public SpeciesParameters[] species_param;
     public List<PhysarumAgent> agents = new List<PhysarumAgent>();
 
 
+    [Header("Shaders")]
+    public ComputeShader filterShader;
+    public ComputeShader imageShader;
+    public ComputeShader agentsShader;
+
+   
     [Header("Readonly")]
     public int speciesCount = 0;
-    public int agentsCount = 0;
     public int steps = 0;
     public int THREADS = 32; // keep like this only
 
     [Header("Environment Hyperparameters")]
+    public WhatWeRender whatWeRender = WhatWeRender.Chemicals;
     [Range(0.001f, 1f)] public float resolutionScale = 1;
     [Range(0, 0.9f)] public float populationPercentageInit = 0.05f;
     [Range(0, 0.5f)] public float decayT = 0.1f;
     [Range(1e-4f, 999e-3f)] public float chemColorShift = 0.5f;
     public Color backgroundColor = Color.black;
+    
+  
 
-    public SpeciesParameters[] species_param;
-
-    [HideInInspector] public bool useSensors = true;
+    public bool useSensors = true;
     private int resolution;
+
 
     void Awake()
     {
-
         Application.runInBackground = true;
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);
@@ -48,8 +53,11 @@ public class PhysarumEngine : MonoBehaviour
         ENV_Tex.filterMode = FilterMode.Point;
         ENV_Img.sprite = Sprite.Create(ENV_Tex, new Rect(0, 0, env_width, env_height), new Vector2(.5f, .5f));
         ENV_Img.color = Color.white;
+        threadGroupsX = (environment.width + THREADS - 1) / THREADS;
+        threadGroupsY = (environment.height + THREADS - 1) / THREADS;
 
         // Compute shaders
+        agents_buff_in = new ComputeBuffer(resolution, sizeof(int));
         chemicals_buff_in = new ComputeBuffer(resolution, sizeof(float));
         spec_mask_buff_in = new ComputeBuffer(resolution, sizeof(float));
         chemicals_buff_out = new ComputeBuffer(resolution, sizeof(float));
@@ -57,14 +65,26 @@ public class PhysarumEngine : MonoBehaviour
         DISPLAY_buff_out = new ComputeBuffer(resolution, sizeof(float) * 4);
         pixels = new Color[resolution];
 
+       
 
         InitializeFirstSpecies(env_width, env_height);
 
     }
     void Update()
     {
-        AgentsStep();
-        Filter_and_Render();
+        AgentsStep_CPU();
+        switch(whatWeRender)
+        {
+            case WhatWeRender.Chemicals:
+                RenderChemis_GPU();
+                break;
+            case WhatWeRender.Agents:
+                RenderAgents_GPU();
+                break;
+            case WhatWeRender.Image:
+                RenderImages_GPU();
+                break;
+        }
         steps++;
     }
 
@@ -115,28 +135,11 @@ public class PhysarumEngine : MonoBehaviour
     public void _createAgent(int speciesID, Vector2Int agentPosition, float orientationDeg)
     {
         PhysarumAgent newAgent =
-            new PhysarumAgent(agentPosition, orientationDeg, species_param[speciesID], environment);
+            new PhysarumAgent(speciesID, agentPosition, orientationDeg, species_param[speciesID], environment);
         agents.Add(newAgent);
-        agentsCount++;
         populationTMPro.text = "Population: " + ((float)agents.Count / resolution).ToString("0.000") + "%";
     }
 
-
-
-    public void ApplyParameters()
-    {
-        foreach (var agent in agents)
-        {
-            agent.sensorType = species_param[agent.speciesID].sensoryType;
-            agent.rotationAngle = species_param[agent.speciesID].RA;
-            agent.sensorAngle = species_param[agent.speciesID].SA;
-            agent.sensorOffset = species_param[agent.speciesID].SO;
-            agent.stepSize = species_param[agent.speciesID].SS;
-            agent.depositTrail = species_param[agent.speciesID].depT;
-            agent.pCD = species_param[agent.speciesID].pCD;
-            agent.sMin = species_param[agent.speciesID].sMin;
-        }
-    }
     public void AddSpecies()
     {
         if(species_param.Length - 1 == speciesCount) 
@@ -152,7 +155,7 @@ public class PhysarumEngine : MonoBehaviour
             // there is 1/species count change to transform this agent into the new species
             if (Functions.randomValue < chance)
             {
-                agents[i] = new PhysarumAgent(agents[i].position, agents[i].orientationDegrees, species_param[speciesCount], environment);
+                agents[i] = new PhysarumAgent(speciesCount, agents[i].position, agents[i].orientationDegrees, species_param[speciesCount], environment);
             }
         }
 
@@ -172,7 +175,7 @@ public class PhysarumEngine : MonoBehaviour
                 continue;
 
             int newSpec = Random.Range(1, speciesCount);
-            agents[i] = new PhysarumAgent(agents[i].position, agents[i].orientationDegrees, species_param[newSpec], environment);
+            agents[i] = new PhysarumAgent(newSpec, agents[i].position, agents[i].orientationDegrees, species_param[newSpec], environment);
         }
 
         speciesCount--;
@@ -187,10 +190,6 @@ public class PhysarumEngine : MonoBehaviour
             if(item)
                 item.canIntersect = true;
         }
-        foreach (var item in agents)
-        {
-            item.canIntersect = true;
-        }
     }
     public void DisallowIntersection()
     {
@@ -200,16 +199,13 @@ public class PhysarumEngine : MonoBehaviour
             if(item)
                  item.canIntersect = false;
         }
-        foreach (var item in agents)
-        {
-            item.canIntersect = false;
-        }
     }
 
 
     // ONLY RENDERING------------------------------------------------------------------------------------------------------------------------------------------
     ComputeBuffer chemicals_buff_in;
     ComputeBuffer spec_mask_buff_in;
+    ComputeBuffer agents_buff_in;
 
     ComputeBuffer chemicals_buff_out;
     ComputeBuffer spec_mask_buff_out;
@@ -218,7 +214,10 @@ public class PhysarumEngine : MonoBehaviour
     ComputeBuffer colors1_buff_in;
     ComputeBuffer colors2_buff_in;
     Color[] pixels;
-    void AgentsStep()
+
+    private int threadGroupsX;
+    private int threadGroupsY;
+    void AgentsStep_CPU()
     {
         // At each execution step of the scheduler, every agent attempts to move forward one step in the current
         // direction.After every agent has attempted to move, the entire population performs its sensory
@@ -229,7 +228,9 @@ public class PhysarumEngine : MonoBehaviour
         //Agents are selected from the population randomly in the motor and sensory stages to avoid the
         //possibility of long term bias by sequential ordering
 
-        Functions.Shuffle(agents);
+
+        // For efficiency reasons, we comment this line
+        //Functions.Shuffle(agents);
 
         foreach (var x in agents)
         {
@@ -244,7 +245,8 @@ public class PhysarumEngine : MonoBehaviour
              x.SensoryStage_2();
          });
     }
-    void Filter_and_Render()
+
+    void RenderChemis_GPU()
     {
         // IO buffers
         chemicals_buff_in.SetData(environment.chemicals);
@@ -254,34 +256,34 @@ public class PhysarumEngine : MonoBehaviour
         colors1_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
         colors2_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
         colors1_buff_in.SetData(new[] {backgroundColor}, 0, 0, 1);
-        colors2_buff_in.SetData(new[] {backgroundColor}, 0, 0, 1);
+        colors2_buff_in.SetData(new[] { backgroundColor }, 0, 0, 1);
         for (int i = 1; i <= speciesCount; i++)
         {
             colors1_buff_in.SetData(new[] { species_param[i].chemCol1 }, 0, i, 1);
             colors2_buff_in.SetData(new[] { species_param[i].chemCol2 }, 0, i, 1);
         }
 
-        shader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
-        shader.SetBuffer(0, "spec_mask_buff_in", spec_mask_buff_in);
-        shader.SetBuffer(0, "chemicals_buff_out", chemicals_buff_out);
-        shader.SetBuffer(0, "spec_mask_buff_out", spec_mask_buff_out);
-        shader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
+        filterShader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
+        filterShader.SetBuffer(0, "spec_mask_buff_in", spec_mask_buff_in);
+        filterShader.SetBuffer(0, "chemicals_buff_out", chemicals_buff_out);
+        filterShader.SetBuffer(0, "spec_mask_buff_out", spec_mask_buff_out);
+        filterShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
                          
-        shader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
-        shader.SetBuffer(0, "colors2_buff_in", colors2_buff_in);
-        shader.SetFloat("chemColorShift", chemColorShift);
+        filterShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
+        filterShader.SetBuffer(0, "colors2_buff_in", colors2_buff_in);
+        filterShader.SetFloat("chemColorShift", chemColorShift);
 
-        shader.SetFloat("decayT", decayT);
-        shader.SetInt("W", environment.width);
-        shader.SetInt("H", environment.height);
+        filterShader.SetFloat("decayT", decayT);
+        filterShader.SetInt("W", environment.width);
+        filterShader.SetInt("H", environment.height);
 
 
 
         // Run CS
-        shader.Dispatch(
+        filterShader.Dispatch(
             0, 
-            (environment.width + THREADS - 1) / THREADS, 
-            (environment.height + THREADS - 1) / THREADS, 
+            threadGroupsX,
+            threadGroupsY,
             1);
 
         chemicals_buff_out.GetData(environment.chemicals);
@@ -290,10 +292,106 @@ public class PhysarumEngine : MonoBehaviour
         DISPLAY_buff_out.GetData(pixels);
         ENV_Tex.SetPixels(pixels);
         ENV_Tex.Apply();
+
+        colors1_buff_in.Release();
+        colors2_buff_in.Release();
     }
+    void RenderAgents_GPU()
+    {
+        // IO buffers
+        agents_buff_in.SetData(environment.agents);
+        chemicals_buff_in.SetData(environment.chemicals);
+        spec_mask_buff_in.SetData(environment.spec_mask);
+
+        // On species index 0, there is no species
+        colors1_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
+        colors1_buff_in.SetData(new[] { backgroundColor }, 0, 0, 1);
+        for (int i = 1; i <= speciesCount; i++)
+        {
+            colors1_buff_in.SetData(new[] { species_param[i].chemCol1 }, 0, i, 1);
+        }
+
+        agentsShader.SetBuffer(0, "agents_buff_in", agents_buff_in);
+        agentsShader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
+        agentsShader.SetBuffer(0, "spec_mask_buff_in", spec_mask_buff_in);
+        agentsShader.SetBuffer(0, "chemicals_buff_out", chemicals_buff_out);
+        agentsShader.SetBuffer(0, "spec_mask_buff_out", spec_mask_buff_out);
+        agentsShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
+
+        agentsShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
+        agentsShader.SetFloat("chemColorShift", chemColorShift);
+
+        agentsShader.SetFloat("decayT", decayT);
+        agentsShader.SetInt("W", environment.width);
+        agentsShader.SetInt("H", environment.height);
 
 
+
+        // Run CS
+        agentsShader.Dispatch(
+            0,
+            threadGroupsX,
+            threadGroupsY,
+            1);
+
+        chemicals_buff_out.GetData(environment.chemicals);
+        spec_mask_buff_out.GetData(environment.spec_mask);
+
+        DISPLAY_buff_out.GetData(pixels);
+        ENV_Tex.SetPixels(pixels);
+        ENV_Tex.Apply();
+
+        colors1_buff_in.Release();
+    }
+    void RenderImages_GPU()
+    {
+        // On species index 0, there is no species
+        colors1_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
+        colors1_buff_in.SetData(new[] { backgroundColor }, 0, 0, 1);
+        for (int i = 1; i <= speciesCount; i++)
+        {
+            colors1_buff_in.SetData(new[] { species_param[i].chemCol1 }, 0, i, 1);
+        }
+
+        agents_buff_in.SetData(environment.agents);
+        imageShader.SetBuffer(0, "agents_buff_in", agents_buff_in);
+        imageShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
+        imageShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
+
+        imageShader.SetInt("W", environment.width);
+        imageShader.SetInt("H", environment.height);
+
+        // Run CS
+        imageShader.Dispatch(
+            0,
+            threadGroupsX,
+            threadGroupsY,
+            1);
+
+        DISPLAY_buff_out.GetData(pixels);
+        ENV_Tex.SetPixels(pixels);
+        ENV_Tex.Apply();
+
+        colors1_buff_in.Release();
+    }
+   
+    private void OnApplicationQuit()
+    {
+        agents_buff_in.Release();
+        chemicals_buff_in.Release();
+        spec_mask_buff_in.Release();
+        chemicals_buff_in.Release();
+        spec_mask_buff_out.Release();
+        chemicals_buff_out.Release();
+        DISPLAY_buff_out.Release();
+    }
 }
 
+public enum WhatWeRender
+{
+    Chemicals,
+    Agents,
+    Image
+}
 
 

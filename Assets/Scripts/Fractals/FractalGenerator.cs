@@ -1,7 +1,6 @@
 using NeuroForge;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,7 +34,11 @@ public class FractalGenerator : MonoBehaviour
     private float changeColorTimeLeft = 0.01f;
     public float diffuseColorTime = 3f;
     public ComputeShader compute;
-    const int THREADS = 12; // it forgets to render in parallel a part of the image so i keep on 12 threads
+    public int THREADS = 12; // it forgets to render in parallel a part of the image so i keep on 12 threads
+
+
+    private int threadGroupsX;
+    private int threadGroupsY;
 
     private readonly List<Vector2> c_values = new List<Vector2>()
     {
@@ -55,7 +58,7 @@ public class FractalGenerator : MonoBehaviour
         int width = (int) (Screen.width * resolutionScale);
         int height = (int) (Screen.height * resolutionScale);
 
-        KERNEL_INDEX = Functions.RandomIn(new List<int>() { 0,1}, new List<float>() { chance_forMandelBrot, (1f - chance_forMandelBrot)});
+        KERNEL_INDEX = compute.FindKernel(Functions.RandomIn(new List<string>() { "MandelbrotSet", "JuliaSet" }, new List<float>() { chance_forMandelBrot, (1f - chance_forMandelBrot) }));
         c = Functions.RandomIn(c_values);
 
 
@@ -63,6 +66,9 @@ public class FractalGenerator : MonoBehaviour
         rendTexl.enableRandomWrite = true;
         rendTexl.Create();
         bgImage.color = Color.white;
+
+        threadGroupsX = (rendTexl.width + THREADS - 1) / THREADS;
+        threadGroupsY = (rendTexl.height + THREADS - 1) / THREADS;
     }
     private void Update()
     {
@@ -137,7 +143,11 @@ public class FractalGenerator : MonoBehaviour
         compute.SetFloat("colorShift2", colorShift2);
 
         compute.SetTexture(KERNEL_INDEX, "Result", rendTexl); // insert values
-        compute.Dispatch(KERNEL_INDEX, rendTexl.width / THREADS, rendTexl.height / THREADS, 1);
+        compute.Dispatch(
+            KERNEL_INDEX, 
+            threadGroupsX,
+            threadGroupsY,
+            1);
 
         colorBuff.Dispose();
         if(bgImage.sprite)

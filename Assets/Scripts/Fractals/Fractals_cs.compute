@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel MandelbrotSet
+#pragma kernel JuliaSet
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -21,29 +22,29 @@ float colorShift1;
 float colorShift2;
 
 
-[numthreads(12,12,1)]
+[numthreads(32,32,1)]
 void MandelbrotSet (uint3 id : SV_DispatchThreadID)
 {
     // Check if x and y are in the mandelbrot set
 
-    double range = 2.0;
-    double scaleX = range / width * 1.75f;
-    double scaleY = range / height;
+    float range = 2.0f;
+    float scaleX = range / width * 1.75f;
+    float scaleY = range / height;
 
-    double x = -0.5 + (id.x - width / 2.0) * scaleX * scale + xOffset;
-    double y =        (id.y - height / 2.0) * scaleY * scale;
+    float x = -0.5f + (id.x - width / 2.0f) * scaleX * scale + xOffset;
+    float y =        (id.y - height / 2.0f) * scaleY * scale;
 
 
     // Method
-    double realPart = x;
-    double imaginaryPart = y;
+    float realPart = x;
+    float imaginaryPart = y;
 
     int iter = 0;
 
-    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4)
+    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4.f)
     {
-        double tempRP = realPart * realPart - imaginaryPart * imaginaryPart + x;
-        double tempIP = 2 * realPart * imaginaryPart + y;
+        float tempRP = realPart * realPart - imaginaryPart * imaginaryPart + x;
+        float tempIP = 2.f * realPart * imaginaryPart + y;
 
         realPart = tempRP;
         imaginaryPart = tempIP;
@@ -62,31 +63,31 @@ void MandelbrotSet (uint3 id : SV_DispatchThreadID)
     }
 }
 
-#pragma kernel JuliaSet
 
-[numthreads(12,12,1)]
+
+[numthreads(32,32,1)]
 void JuliaSet(uint3 id : SV_DispatchThreadID)
 {
     // Check if x and y are in the mandelbrot set
 
-    double range = 2.0;
-    double scaleX = range / width * 1.75f;
-    double scaleY = range / height;
+    float range = 2.0f;
+    float scaleX = range / width * 1.75f;
+    float scaleY = range / height;
 
-    double x = (id.x - width / 2.0) * scaleX * scale;
-    double y = (id.y - height / 2.0) * scaleY * scale;
+    float x = (id.x - width / 2.0f) * scaleX * scale;
+    float y = (id.y - height / 2.0f) * scaleY * scale;
 
 
     // Method
-    double realPart = x;
-    double imaginaryPart = y;
+    float realPart = x;
+    float imaginaryPart = y;
 
     int iter = 0;
 
-    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4)
+    while (iter < iterations && (realPart * realPart + imaginaryPart * imaginaryPart) <= 4.f)
     {
-        double tempRP = realPart * realPart - imaginaryPart * imaginaryPart + c.x;
-        double tempIP = 2 * realPart * imaginaryPart + c.y;
+        float tempRP = realPart * realPart - imaginaryPart * imaginaryPart + c.x;
+        float tempIP = 2.f * realPart * imaginaryPart + c.y;
 
         realPart = tempRP;
         imaginaryPart = tempIP;

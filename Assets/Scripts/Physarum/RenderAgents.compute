@@ -1,0 +1,94 @@
+#pragma kernel RenderAgents
+RWStructuredBuffer<float> chemicals_buff_in;
+RWStructuredBuffer<int> spec_mask_buff_in;
+RWStructuredBuffer<float> chemicals_buff_out;
+RWStructuredBuffer<int> spec_mask_buff_out;
+RWStructuredBuffer<float4> pix_displ_buff_out; // final colors array
+
+RWStructuredBuffer<float4> colors1_buff_in; // chemColor1 from all species
+
+
+float decayT;
+int W;
+int H;
+
+static const float3x3 kernel = float3x3(
+    0.11111111f, 0.11111111f, 0.11111111f,
+    0.11111111f, 0.11111111f, 0.11111111f,
+    0.11111111f, 0.11111111f, 0.11111111f
+);
+
+// New added
+RWStructuredBuffer<int> agents_buff_in;
+
+
+int ArgMax(float values[6]) // three spots where you need to modify 6 if needed*
+{
+    float maxValue = -9999.f;
+    int maxIndex = 0;
+    for (int i = 0; i < 6; i++)
+    {
+        if (values[i] > maxValue)
+        {
+            maxValue = values[i];
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
+}
+
+
+
+[numthreads(32, 32, 1)]
+void RenderAgents(uint3 threadID : SV_DispatchThreadID)
+{
+    int2 inputTexcoord = int2(threadID.xy);
+
+    // mirror the input texture coordinates if they fall outside the image bounds
+    if (inputTexcoord.x < 0)
+    {
+        inputTexcoord.x = -inputTexcoord.x;
+    }
+    else if (inputTexcoord.x >= W)
+    {
+        inputTexcoord.x = 2 * W - inputTexcoord.x - 2;
+    }
+
+    if (inputTexcoord.y < 0)
+    {
+        inputTexcoord.y = -inputTexcoord.y;
+    }
+    else if (inputTexcoord.y >= H)
+    {
+        inputTexcoord.y = 2 * H - inputTexcoord.y - 2;
+    }
+
+    float sum = 0.f;
+    float spec_strength[6];
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            int pos = (inputTexcoord.x + i) + (inputTexcoord.y + j) * W;
+            
+            // Update color
+            float pixelValue = chemicals_buff_in[pos];
+            sum += pixelValue * kernel[i + 1][j + 1];
+            
+            // Update species
+            int specMask = spec_mask_buff_in[pos];
+            spec_strength[specMask] += pixelValue;
+        }
+    }
+    // find which species has the most chemical in the zone
+    int spc = ArgMax(spec_strength);
+    sum *= (1.0f - decayT);
+    
+    int P = threadID.x + threadID.y * W;
+
+    chemicals_buff_out[P] = sum;
+    spec_mask_buff_out[P] = spc;
+    
+    pix_displ_buff_out[P] = colors1_buff_in[agents_buff_in[P]];
+}
+

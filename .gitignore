@@ -47,6 +47,18 @@ ExportedObj/
 *.opendb
 *.VC.db
 
+# Ignore large files
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+*.ogg
+*.pkg
+*.dmg
+*.zip
+*.tar.gz
+
 # Unity3D generated meta files
 *.pidb.meta
 *.pdb.meta
