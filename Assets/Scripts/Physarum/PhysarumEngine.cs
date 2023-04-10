@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class PhysarumEngine : MonoBehaviour
 {
-    public TMPro.TMP_Text populationTMPro;
-    public TMPro.TMP_Text speciesNoTMPro;
-    public Image ENV_Img;
+    [SerializeField] TMPro.TMP_Text populationTMPro;
+    [SerializeField] TMPro.TMP_Text speciesNoTMPro;
+    [SerializeField] Image ENV_Img;
     public InitAgentsType initializationType;
     public PhysarumEnvironment environment;
     private Texture2D ENV_Tex;
@@ -42,7 +42,6 @@ public class PhysarumEngine : MonoBehaviour
 
     void Awake()
     {
-        Application.runInBackground = true;
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);
         resolution = env_width * env_height;

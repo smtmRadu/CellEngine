@@ -6,7 +6,9 @@ using UnityEngine.SceneManagement;
 
 public class PhysarumController : MonoBehaviour
 {
-    public PhysarumEngine engineRef;
+    [SerializeField] PhysarumEngine engineRef;
+    [SerializeField] ImageConstructor rendererRef;
+
     bool isChangingColor = false;
 
     [Header("Controls")]
@@ -43,30 +45,79 @@ public class PhysarumController : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
+        // [D] Shuffle---------------------------------------
+        if (Input.GetKeyDown(KeyCode.D))
             engineRef.AllowIntersection();
-
-        if(Input.GetKeyUp(KeyCode.S))
+        else if(Input.GetKeyUp(KeyCode.D))
             engineRef.DisallowIntersection();
+        //---------------------------------------------------
 
+
+
+        // [R] Random-----------------------------------------
         if (Input.GetKeyDown(KeyCode.R))
             DeployChange(Random.Range(mixColorRange.x, mixColorRange.y));
+        //---------------------------------------------------
 
+
+
+
+
+        // [N, B] Species--------------------------------------------
         if (Input.GetKeyDown(KeyCode.N))
             engineRef.AddSpecies();
-
-        if (Input.GetKeyDown(KeyCode.L))
+        else if (Input.GetKeyDown(KeyCode.B))
             engineRef.CutSpecies();
+        //-----------------------------------------------------
 
+
+
+
+
+        // [Mouse[0,1]]Draw / Erase-----------------------------
         if (Input.GetMouseButton(0))
             DrawAgents();
-
-        if (Input.GetMouseButton(1))
+        else if (Input.GetMouseButton(1))
             EraseAgents();
+        //-----------------------------------------------------
 
+
+
+
+
+
+        // [I, A, C, L] Rendering-------------------------------
+        if (Input.GetKeyDown(KeyCode.I))
+            rendererRef.RenderNextImage();
+        else if (Input.GetKeyDown(KeyCode.A))
+            rendererRef.RenderAgents();
+        else if (Input.GetKeyDown(KeyCode.C))
+            rendererRef.RenderChemicals();
+        //------------------------------------------------------
+
+
+
+
+
+        // [L, P, S] Loaders and Savers--------------------------------------
+        if (Input.GetKeyDown(KeyCode.P))
+            rendererRef.LoadPattern();
+        else if (Input.GetKeyDown(KeyCode.L))
+            rendererRef.LoadAndRenderImage();
+        else if (Input.GetKeyDown(KeyCode.S))
+            rendererRef.SavePatterns();
+        //-----------------------------------------------------
+
+
+
+
+
+        // [M, E] Menu/Exit-------------------------------------
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("MainMenu");
-
+        else if (Input.GetKeyDown(KeyCode.M))
+            return;
+        //------------------------------------------------------
 
     }
     void DrawAgents()
@@ -221,7 +272,6 @@ public class PhysarumController : MonoBehaviour
         }
         
     }
-
     struct ChemColors
     {
         public Color color1;

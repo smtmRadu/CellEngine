@@ -1,0 +1,42 @@
+#pragma kernel SobelFilter
+
+Texture2D<float4> source;
+RWTexture2D<float4> result;
+
+float2 sourceSize;
+
+// Sobel kernel (Horizontal and vertical)
+static float3x3 sobelKernelX = float3x3(-1, 0, 1,
+                                        -2, 0, 2,
+                                        -1, 0, 1);
+
+static float3x3 sobelKernelY = float3x3(-1, -2, -1,
+                                         0, 0, 0,
+                                         1, 2, 1);
+
+[numthreads(8, 8, 1)]
+void SobelFilter(uint3 id : SV_DispatchThreadID)
+{
+    float4 sumX = 0;
+    float4 sumY = 0;
+
+    // Mirror padding
+    int2 paddedPos = int2(id.xy) - 1;
+    paddedPos.x = clamp(paddedPos.x, 0, int(sourceSize.x - 1));
+    paddedPos.y = clamp(paddedPos.y, 0, int(sourceSize.y - 1));
+    uint2 sourcePos = uint2(paddedPos.x, paddedPos.y);
+
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            float4 pixelValue = source[sourcePos + uint2(x, y)];
+            sumX += sobelKernelX[x + 1][y + 1] * pixelValue;
+            sumY += sobelKernelY[x + 1][y + 1] * pixelValue;
+        }
+    }
+
+    float4 sobelValue = sqrt(sumX * sumX + sumY * sumY);
+
+    result[id.xy] = sobelValue;
+}

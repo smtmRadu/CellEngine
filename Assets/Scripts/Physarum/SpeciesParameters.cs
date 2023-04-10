@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[System.Serializable]
 public class SpeciesParameters : MonoBehaviour
 {
     public Color chemCol1 = Color.red;
