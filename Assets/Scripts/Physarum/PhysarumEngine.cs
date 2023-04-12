@@ -345,17 +345,24 @@ public class PhysarumEngine : MonoBehaviour
     void RenderImages_GPU()
     {
         // On species index 0, there is no species
+        // On species index 0, there is no species
         colors1_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
+        colors2_buff_in = new ComputeBuffer(speciesCount + 1, sizeof(float) * 4);
         colors1_buff_in.SetData(new[] { backgroundColor }, 0, 0, 1);
+        colors2_buff_in.SetData(new[] { backgroundColor }, 0, 0, 1);
         for (int i = 1; i <= speciesCount; i++)
         {
             colors1_buff_in.SetData(new[] { species_param[i].chemCol1 }, 0, i, 1);
+            colors2_buff_in.SetData(new[] { species_param[i].chemCol2 }, 0, i, 1);
         }
 
         agents_buff_in.SetData(environment.agents);
+        chemicals_buff_in.SetData(environment.chemicals);
         imageShader.SetBuffer(0, "agents_buff_in", agents_buff_in);
+        imageShader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
         imageShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
         imageShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
+        imageShader.SetBuffer(0, "colors2_buff_in", colors2_buff_in);
 
         imageShader.SetInt("W", environment.width);
         imageShader.SetInt("H", environment.height);
@@ -372,6 +379,7 @@ public class PhysarumEngine : MonoBehaviour
         ENV_Tex.Apply();
 
         colors1_buff_in.Release();
+        colors2_buff_in.Release();
     }
    
     private void OnApplicationQuit()

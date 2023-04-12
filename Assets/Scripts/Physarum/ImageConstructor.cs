@@ -2,10 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
-using System.Diagnostics;
-using System;
-using Unity.VisualScripting;
-using UnityEditor;
 
 public class ImageConstructor : MonoBehaviour
 {
@@ -15,46 +11,29 @@ public class ImageConstructor : MonoBehaviour
     [SerializeField] int AT_INDEX_IMAGE = 0;
     [SerializeField] List<(string,Sprite)> images = new List<(string, Sprite)>();
 
-    public void LoadAndRenderImage()
+
+
+    [SerializeField] int depT_WhenRenderingImage = 0;
+    [SerializeField] float decayT_WhenRenderingImage = 0f;
+    public void RenderImage()
     {
-        string filePath = "";
-        string directoryPath = "";
-
-        // Show the open file dialog
-        var extensions = new[] { "png", "jpeg", "jpg" };
-        var extensionString = string.Join(",", extensions);
-        var filter = new[] { $"Image files ({extensionString})", extensionString };
-        var title = "Select Image";
-        var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var fullFilePath = EditorUtility.OpenFilePanelWithFilters(title, path, filter);
-
-        // Get the directory and file paths
-        if (!string.IsNullOrEmpty(fullFilePath))
-        {
-            directoryPath = Path.GetDirectoryName(fullFilePath);
-            filePath = fullFilePath;
-        }
-        else
-            return;
-
-        // Load the Texture from that filepath
-        byte[] bytes = File.ReadAllBytes(filePath);
-        Texture2D newImage = new Texture2D(2, 2, TextureFormat.RGBA32, true);
-        newImage.LoadImage(bytes);
+        var name_img = OpenFileDialog();
+        var image = name_img.Item2;
+        var name = name_img.Item1;
 
         // Filter and Resize
-        newImage = ScaleTexture(newImage, engineRef.environment.width, engineRef.environment.height);
-        newImage = SobelFilter(newImage);
-
+        image = ScaleTexture(image, engineRef.environment.width, engineRef.environment.height);
+        image = SobelFilter(image);
+            
         // Add the image to the list
-        Sprite newSpr = Sprite.Create(newImage, new Rect(0f, 0f, newImage.width, newImage.height), new Vector2(0.5f, 0.5f));
-        images.Add((Path.GetFileName(filePath), newSpr));
+        Sprite newSpr = Sprite.Create(image, new Rect(0f, 0f, image.width, image.height), new Vector2(0.5f, 0.5f));
+        images.Add((Path.GetFileName(name), newSpr));
 
         // Also render it immediatelly
         AT_INDEX_IMAGE = images.Count - 1;
         RenderNextImage();
     }
-
+    
     public void LoadPattern()
     {
 
@@ -67,7 +46,7 @@ public class ImageConstructor : MonoBehaviour
     public void RenderNextImage()
     {
         if (images.Count == 0)
-            LoadAndRenderImage();
+            RenderImage();
 
         if (engineRef.whatWeRender != WhatWeRender.Image)
             AT_INDEX_IMAGE--;
@@ -123,14 +102,14 @@ public class ImageConstructor : MonoBehaviour
         engineRef.environment.chemicals = portraitPixArr;
 
         // Other settings to do
-        engineRef.decayT = 0;
+        engineRef.decayT = decayT_WhenRenderingImage;
         for (int i = 0; i < engineRef.environment.spec_mask.Length; i++)
         {
             engineRef.environment.spec_mask[i] = 1;
         }
         for (int i = 1; i < engineRef.species_param.Length; i++)
         {
-            engineRef.species_param[i].depT = 0;
+            engineRef.species_param[i].depT = depT_WhenRenderingImage;
         }
     }
     private void BackToNormal()
@@ -196,6 +175,22 @@ public class ImageConstructor : MonoBehaviour
         // Cleanup
         outputTexture.Release();
         return resultTexture;
+    }
+    private (string, Texture2D) OpenFileDialog()
+    {
+        // Open file dialog to choose an image file
+        var dialog = new System.Windows.Forms.OpenFileDialog();
+        dialog.Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
+
+        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+            // Load image file as texture
+            byte[] imageData = File.ReadAllBytes(dialog.FileName);
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(imageData);
+            return (dialog.FileName, texture);
+        }
+        return (null, null);
     }
 
 }

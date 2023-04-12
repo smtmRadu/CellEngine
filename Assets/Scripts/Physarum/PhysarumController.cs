@@ -41,7 +41,7 @@ public class PhysarumController : MonoBehaviour
     }
     private void Start()
     {
-        DeployChange(Random.Range(mixColorRange.x * 4, mixColorRange.y * 4));
+        DeployChange(Random.Range(mixColorRange.x * 3, mixColorRange.y * 3));
     }
     private void Update()
     {
@@ -103,7 +103,7 @@ public class PhysarumController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
             rendererRef.LoadPattern();
         else if (Input.GetKeyDown(KeyCode.L))
-            rendererRef.LoadAndRenderImage();
+            rendererRef.RenderImage();
         else if (Input.GetKeyDown(KeyCode.S))
             rendererRef.SavePatterns();
         //-----------------------------------------------------

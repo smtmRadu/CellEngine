@@ -1,7 +1,9 @@
-#pragma kernel RenderAgents
+#pragma kernel RenderImage
 
 RWStructuredBuffer<int> agents_buff_in;
+RWStructuredBuffer<float> chemicals_buff_in;
 RWStructuredBuffer<float4> colors1_buff_in; // chemColor1 from all species
+RWStructuredBuffer<float4> colors2_buff_in;
 RWStructuredBuffer<float4> pix_displ_buff_out; // final colors array
 
 int W;
@@ -15,7 +17,7 @@ static const float3x3 kernel = float3x3(
 
 
 [numthreads(32, 32, 1)]
-void RenderAgents(uint3 threadID : SV_DispatchThreadID)
+void RenderImage(uint3 threadID : SV_DispatchThreadID)
 {
     int2 inputTexcoord = int2(threadID.xy);
 
@@ -40,6 +42,7 @@ void RenderAgents(uint3 threadID : SV_DispatchThreadID)
   
     int P = threadID.x + threadID.y * W;
     
-    pix_displ_buff_out[P] = colors1_buff_in[agents_buff_in[P]];
+    //pix_displ_buff_out[P] = colors1_buff_in[agents_buff_in[P]];
+    pix_displ_buff_out[P] = lerp(colors2_buff_in[agents_buff_in[P]], colors1_buff_in[agents_buff_in[P]], chemicals_buff_in[P] * 10.f);
 }
 
