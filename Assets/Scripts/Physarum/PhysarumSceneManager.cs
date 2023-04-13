@@ -55,10 +55,16 @@ public class PhysarumSceneManager : MonoBehaviour
             // you can start fade
             foreach (var item in toFadeImages)
             {
+                if (item.enabled == false)
+                    continue;
+
                 item.color = new Color(item.color.r, item.color.g, item.color.b, item.color.a * fadeRate < 1e-3f ? 1e-3f : item.color.a * fadeRate);
             }
             foreach (var item in toFadeText)
             {
+                if (item.enabled == false)
+                    continue;
+
                 item.color = new Color(item.color.r, item.color.g, item.color.b, item.color.a * fadeRate < 1e-3f ? 1e-3f : item.color.a * fadeRate);
             }
         }
@@ -66,10 +72,16 @@ public class PhysarumSceneManager : MonoBehaviour
         {
             foreach (var item in toFadeImages)
             {
+                if (item.enabled == false)
+                    continue;
+
                 item.color = new Color(item.color.r, item.color.g, item.color.b, item.color.a / appearRate > 1 ? 1 : item.color.a / appearRate);
             }
             foreach (var item in toFadeText)
             {
+                if (item.enabled == false)
+                    continue;
+
                 item.color = new Color(item.color.r, item.color.g, item.color.b, item.color.a / appearRate > 1 ? 1 : item.color.a / appearRate);
             }
         }

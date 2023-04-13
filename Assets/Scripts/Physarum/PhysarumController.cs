@@ -8,6 +8,7 @@ public class PhysarumController : MonoBehaviour
 {
     [SerializeField] PhysarumEngine engineRef;
     [SerializeField] ImageConstructor rendererRef;
+    [SerializeField] PhysarumMenu menuRef;
 
     bool isChangingColor = false;
 
@@ -75,10 +76,14 @@ public class PhysarumController : MonoBehaviour
 
 
         // [Mouse[0,1]]Draw / Erase-----------------------------
-        if (Input.GetMouseButton(0))
-            DrawAgents();
-        else if (Input.GetMouseButton(1))
-            EraseAgents();
+        if(!menuRef.enabled)
+        {
+            if (Input.GetMouseButton(0))
+                DrawAgents();
+            else if (Input.GetMouseButton(1))
+                EraseAgents();
+        }
+       
         //-----------------------------------------------------
 
 
@@ -116,7 +121,7 @@ public class PhysarumController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("MainMenu");
         else if (Input.GetKeyDown(KeyCode.M))
-            return;
+            menuRef.enabled = menuRef.enabled == false ? true : false;
         //------------------------------------------------------
 
     }
