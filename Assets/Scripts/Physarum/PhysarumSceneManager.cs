@@ -29,29 +29,6 @@ public class PhysarumSceneManager : MonoBehaviour
     private void Awake()
     {
         Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
-
-
-        var pipe = FindObjectOfType<PhysarumPipe>();
-        if (pipe != null)
-        {
-            //use pipe
-            PEngine.resolutionScale = pipe.resolution;
-            PEngine.initializationType = pipe.initType;
-            PEngine.populationPercentageInit = pipe.population;
-
-            menuRef.Resolution.value = pipe.resolution;
-            menuRef.SpawnType.value = (int)pipe.initType;
-            menuRef.Population.value = pipe.population;
-
-        }
-        else
-        {
-            //create pipe
-            pipe = new PhysarumPipe();
-            var newPipeGO = new GameObject("Pipe");         
-            newPipeGO.AddComponent(pipe.GetType());
-            DontDestroyOnLoad(newPipeGO);
-        }
     }
     private void Start()
     {
@@ -76,11 +53,6 @@ public class PhysarumSceneManager : MonoBehaviour
     {
         FadeReferenceControls();
         fpsCounter.text = (1f / Time.deltaTime).ToString("0.0 FPS");
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ResetScene();
-        }
     }
     void FadeReferenceControls()
     {
@@ -130,19 +102,5 @@ public class PhysarumSceneManager : MonoBehaviour
         }
 
         mouseLastPosition = Input.mousePosition;
-    }
-
-    void ResetScene()
-    {
-        var pipe = FindObjectOfType<PhysarumPipe>();
-        // prepare pipe
-        pipe.initType = (InitAgentsType)menuRef.SpawnType.value;
-        pipe.population = menuRef.Population.value;
-        pipe.resolution = menuRef.Resolution.value;
-
-
-
-
-        SceneManager.LoadScene("Physarum");
     }
 }

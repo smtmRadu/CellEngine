@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class PhysarumController : MonoBehaviour
 {
     [SerializeField] PhysarumEngine engineRef;
+    [SerializeField] PhysarumSceneManager sceneManagerRef;
     [SerializeField] ImageConstructor rendererRef;
     [SerializeField] PhysarumMenu menuRef;
 
@@ -114,11 +115,12 @@ public class PhysarumController : MonoBehaviour
 
 
 
-        // [M, E] Menu/Exit-------------------------------------
+        // [M, E, Space] Menu/Exit/Reset-------------------------------------
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("MainMenu");
         else if (Input.GetKeyDown(KeyCode.M))
             menuRef.enabled = menuRef.enabled == false ? true : false;
+        
         //------------------------------------------------------
 
     }

@@ -38,7 +38,18 @@ public class PhysarumEngine : MonoBehaviour
 
     public bool useSensors = true;
     private int resolution;
+    private void Awake()
+    {
+        var pipe = FindObjectOfType<PhysarumPipe>();
+        if (pipe == null)
+            return;
 
+        resolutionScale = pipe.resolution;
+        initializationType = pipe.initType;
+        populationPercentageInit = pipe.population;
+
+        pipe.Dispose();
+    }
 
     void Start()
     {

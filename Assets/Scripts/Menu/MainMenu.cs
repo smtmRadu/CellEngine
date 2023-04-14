@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEditor;
 
 public class MainMenu : MonoBehaviour
 {
@@ -17,6 +16,10 @@ public class MainMenu : MonoBehaviour
     public float appearRate = 0.99f;
     private Vector2 mouseLastPosition;
 
+    [Header("Physarum Initialize Parameters")]
+    [SerializeField] TMPro.TMP_Dropdown SpawnType;
+    [SerializeField] CustomSliderScript Resolution;
+    [SerializeField] CustomSliderScript Population;
 
     [Header("Audio")]
     public AudioSource buttonAUdioSource;
@@ -90,6 +93,16 @@ public class MainMenu : MonoBehaviour
     }
     public void Load_Physarum()
     {
+
+        //create pipe
+        var newPipeGO = new GameObject("PhysarumPipe");
+        newPipeGO.AddComponent(new PhysarumPipe().GetType());
+        var pipe = newPipeGO.GetComponent<PhysarumPipe>();
+        pipe.initType = (InitAgentsType)SpawnType.value;
+        pipe.population = Population.value;
+        pipe.resolution = Resolution.value;
+
+        DontDestroyOnLoad(newPipeGO);
         SceneManager.LoadScene("Physarum");
     }
     public void QuitApp()

@@ -27,9 +27,6 @@ public class PhysarumMenu : MonoBehaviour
     [SerializeField] CustomSliderScript pCD;
     [SerializeField] CustomSliderScript sMin;
 
-    public TMPro.TMP_Dropdown SpawnType;
-    public CustomSliderScript Resolution;
-    public CustomSliderScript Population;
     [SerializeField] CustomSliderScript DecayRate;
     [SerializeField] CustomSliderScript ColorShift;
 
@@ -50,7 +47,6 @@ public class PhysarumMenu : MonoBehaviour
         sceneManager.toFadeText.Add(imageRendered);
         sceneManager.toFadeText.Add(menuLabel);
 
-        SpawnType.gameObject.SetActive(true);
         SpeciesNum.gameObject.SetActive(true);
         SensorType.gameObject.SetActive(true);
         RA.gameObject.SetActive(true);
@@ -60,8 +56,7 @@ public class PhysarumMenu : MonoBehaviour
         DepT.gameObject.SetActive(true);
         pCD.gameObject.SetActive(true);
         sMin.gameObject.SetActive(true);
-        Resolution.gameObject.SetActive(true);
-        Population.gameObject.SetActive(true);
+
         DecayRate.gameObject.SetActive(true);
         ColorShift.gameObject.SetActive(true);
 
@@ -82,7 +77,6 @@ public class PhysarumMenu : MonoBehaviour
         sceneManager.toFadeText.Remove(imageRendered);
         sceneManager.toFadeText.Remove(menuLabel);
 
-        SpawnType.gameObject.SetActive(false);
         SpeciesNum.gameObject.SetActive(false);
         SensorType.gameObject.SetActive(false);
         RA.gameObject.SetActive(false);
@@ -92,8 +86,7 @@ public class PhysarumMenu : MonoBehaviour
         DepT.gameObject.SetActive(false);
         pCD.gameObject.SetActive(false);
         sMin.gameObject.SetActive(false);
-        Resolution.gameObject.SetActive(false);
-        Population.gameObject.SetActive(false);
+
         DecayRate.gameObject.SetActive(false);
         ColorShift.gameObject.SetActive(false);
 
@@ -131,4 +124,5 @@ public class PhysarumMenu : MonoBehaviour
     public void ChangeSMin() => engineRef.species_param[SpeciesNum.value + 1].sMin = sMin.value;
     public void ChangeDecayT() => engineRef.decayT = DecayRate.value;
     public void ChangeColorShift() => engineRef.chemColorShift = ColorShift.value;
+    
 }
