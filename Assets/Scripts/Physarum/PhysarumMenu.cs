@@ -7,13 +7,14 @@ public class PhysarumMenu : MonoBehaviour
     [SerializeField] PhysarumEngine engineRef;
     [SerializeField] PhysarumSceneManager sceneManager;
 
-    [Space]
-    [SerializeField] TMPro.TMP_Text fpsCounter;
-    [SerializeField] TMPro.TMP_Text speciesNo;
-    [SerializeField] TMPro.TMP_Text populationPerc;
-    [SerializeField] TMPro.TMP_Text imageRendered;
-    [SerializeField] TMPro.TMP_Text menuLabel;
-    [SerializeField] Image menuImage;
+    public TMPro.TMP_Text fpsCounter;
+    public TMPro.TMP_Text speciesNo;
+    public TMPro.TMP_Text populationPerc;
+    public TMPro.TMP_Text imageRendered;
+    public TMPro.TMP_Text menuLabel;
+    public Image menuImage;
+    public Image leftFade;
+    public Image rightFade;
 
     [Space]
     [SerializeField] TMPro.TMP_Dropdown SpeciesNum;
@@ -26,33 +27,20 @@ public class PhysarumMenu : MonoBehaviour
     [SerializeField] CustomSliderScript pCD;
     [SerializeField] CustomSliderScript sMin;
 
-    [SerializeField] TMPro.TMP_Dropdown SpawnType;
-    [SerializeField] CustomSliderScript Resolution;
-    [SerializeField] CustomSliderScript Population;
+    public TMPro.TMP_Dropdown SpawnType;
+    public CustomSliderScript Resolution;
+    public CustomSliderScript Population;
     [SerializeField] CustomSliderScript DecayRate;
     [SerializeField] CustomSliderScript ColorShift;
 
-    [Space]
-    [SerializeField] Image leftFade;
-    [SerializeField] Image rightFade;
+    
+     
 
     // Menu disallow placeing or erasing 
     [SerializeField] List<GameObject> tutorialInfos;
 
-    private void Awake()
-    {
-        sceneManager.toFadeImages.Add(menuImage);
-        sceneManager.toFadeImages.Add(leftFade);
-        sceneManager.toFadeImages.Add(rightFade);
+   
 
-        sceneManager.toFadeText.Add(fpsCounter);
-        sceneManager.toFadeText.Add(speciesNo);
-        sceneManager.toFadeText.Add(populationPerc);
-        sceneManager.toFadeText.Add(imageRendered);
-        sceneManager.toFadeText.Add(menuLabel);
-
-
-    }
     public void OnEnable()
     {
         sceneManager.toFadeImages.Add(menuImage);
@@ -116,21 +104,9 @@ public class PhysarumMenu : MonoBehaviour
     }
 
 
-    public void ChangeParameters()
-    {
-        int sNumber = SpeciesNum.value + 1; // because in species_param 0 is null
-        SpeciesParameters speciesToModify = engineRef.species_param[sNumber];
+   
 
-        // Modify speciesToModify
-        speciesToModify.sensorType = (SensoryType)SensorType.value;
-        speciesToModify.RA = RA.value;
-        speciesToModify.SA = SA.value;
-        speciesToModify.SS = (int)SS.value;
-        speciesToModify.depT = (int)DepT.value;
-        speciesToModify.pCD = pCD.value;
-        speciesToModify.sMin = sMin.value;
-    }
-    public void ChangeSlidersByParameters()
+    public void ChangeSliders_ByParameters()
     {
         int sNumber = SpeciesNum.value + 1; // because in species_param 0 is null
         SpeciesParameters speciesToGetParametersFrom = engineRef.species_param[sNumber];
@@ -144,4 +120,15 @@ public class PhysarumMenu : MonoBehaviour
         pCD.value = speciesToGetParametersFrom.pCD;
         sMin.value = speciesToGetParametersFrom.sMin;
     }
+
+    public void ChangeSensorType() => engineRef.species_param[SpeciesNum.value + 1].sensorType = (SensoryType)SensorType.value;
+    public void ChangeRA() => engineRef.species_param[SpeciesNum.value + 1].RA = RA.value;
+    public void ChangeSA() => engineRef.species_param[SpeciesNum.value + 1].SA = SA.value;
+    public void ChangeSO() => engineRef.species_param[SpeciesNum.value + 1].SO = (int)SO.value;
+    public void ChangeSS() => engineRef.species_param[SpeciesNum.value + 1].SS = (int)SS.value;
+    public void ChangeDepT() => engineRef.species_param[SpeciesNum.value + 1].depT = (int) DepT.value;
+    public void ChangePCD() => engineRef.species_param[SpeciesNum.value + 1].pCD = pCD.value;
+    public void ChangeSMin() => engineRef.species_param[SpeciesNum.value + 1].sMin = sMin.value;
+    public void ChangeDecayT() => engineRef.decayT = DecayRate.value;
+    public void ChangeColorShift() => engineRef.chemColorShift = ColorShift.value;
 }

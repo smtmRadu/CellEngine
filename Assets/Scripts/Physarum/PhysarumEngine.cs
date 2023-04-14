@@ -40,7 +40,7 @@ public class PhysarumEngine : MonoBehaviour
     private int resolution;
 
 
-    void Awake()
+    void Start()
     {
         int env_width = (int)(Screen.width * resolutionScale);
         int env_height = (int)(Screen.height * resolutionScale);

@@ -132,7 +132,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_text
-      value: '0.2
+      value: '0.20
 
 '
       objectReference: {fileID: 0}
@@ -167,6 +167,10 @@ PrefabInstance:
     - target: {fileID: 7606989053836201712, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_text
       value: Population Density
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054045844006, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: value_text_format
+      value: 0.00
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844024, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Name
@@ -993,7 +997,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_text
-      value: 0.5
+      value: 0.50
       objectReference: {fileID: 0}
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_VerticalAlignment
@@ -1028,6 +1032,10 @@ PrefabInstance:
       value: 'Color Shift
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054045844006, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: value_text_format
+      value: 0.00
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844024, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Name
@@ -1132,6 +1140,50 @@ PrefabInstance:
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Value
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_MinValue
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 722366794}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 229379545}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ChangeColorShift
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ChangeTextValue
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PhysarumMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: CustomSliderScript, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -2276,14 +2328,14 @@ MonoBehaviour:
   m_Placeholder: {fileID: 0}
   m_ItemText: {fileID: 379302613}
   m_ItemImage: {fileID: 0}
-  m_Value: 0
+  m_Value: 1
   m_Options:
     m_Options:
+    - m_Text: Random
+      m_Image: {fileID: 0}
     - m_Text: Circle Inwards
       m_Image: {fileID: 0}
     - m_Text: Circle Outwards
-      m_Image: {fileID: 0}
-    - m_Text: Random
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2817,6 +2869,8 @@ MonoBehaviour:
   imageRendered: {fileID: 465109876}
   menuLabel: {fileID: 7162489980540127740}
   menuImage: {fileID: 7162489980950467466}
+  leftFade: {fileID: 2125086852}
+  rightFade: {fileID: 407532352}
   SpeciesNum: {fileID: 1132237327}
   SensorType: {fileID: 1813181676}
   RA: {fileID: 1086820395}
@@ -2831,8 +2885,6 @@ MonoBehaviour:
   Population: {fileID: 837081997}
   DecayRate: {fileID: 945335176}
   ColorShift: {fileID: 229379545}
-  leftFade: {fileID: 2125086852}
-  rightFade: {fileID: 407532352}
   tutorialInfos:
   - {fileID: 3314275194158626203}
   - {fileID: 5529248102260801974}
@@ -3225,7 +3277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangePCD
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -4256,7 +4308,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 722366794}
         m_TargetAssemblyTypeName: PhysarumMenu, Assembly-CSharp
-        m_MethodName: ChangeSlidersByParameters
+        m_MethodName: ChangeSliders_ByParameters
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4795,7 +4847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeSMin
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -5582,7 +5634,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeSS
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -5815,13 +5867,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PEngine: {fileID: 193910037}
+  menuRef: {fileID: 722366794}
   mouseCursor: {fileID: 2800000, guid: 58cb9d6789753cd43964cee053778b45, type: 3}
   audioSource: {fileID: 1572477820}
   bgMusic: []
+  fpsCounter: {fileID: 361709239}
   fadeRate: 0.95
-  appearRate: 0.85
-  fpsCounterText: {fileID: 361709239}
-  timeStep__AfterTheyStartFading: 1.75
+  appearRate: 0.9
+  timeStep__AfterTheyStartFading: 2
   timeLeft__UntilTheyStartFading: 0
   toFadeImages: []
   toFadeText: []
@@ -6461,7 +6514,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeSA
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -6757,7 +6810,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 722366794}
         m_TargetAssemblyTypeName: PhysarumMenu, Assembly-CSharp
-        m_MethodName: ChangeParameters
+        m_MethodName: ChangeSensorType
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6964,6 +7017,10 @@ PrefabInstance:
       value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_MinValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_WholeNumbers
       value: 1
       objectReference: {fileID: 0}
@@ -6985,7 +7042,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeSO
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -7041,6 +7098,10 @@ PrefabInstance:
       value: 'Decay Rate
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054045844006, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: value_text_format
+      value: 0.00
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844024, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Name
@@ -7145,6 +7206,46 @@ PrefabInstance:
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Value
       value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 722366794}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 945335176}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ChangeDecayT
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ChangeTextValue
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PhysarumMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: CustomSliderScript, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -7306,6 +7407,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_MinValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_WholeNumbers
       value: 1
       objectReference: {fileID: 0}
@@ -7327,7 +7432,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeDepT
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -7685,7 +7790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
@@ -7700,6 +7805,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 722366794}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 722366792}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
       objectReference: {fileID: 0}
@@ -7709,7 +7818,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ChangeParameters
+      value: ChangeRA
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -11325,6 +11434,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_text
+      value: 0.50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_VerticalAlignment
       value: 256
       objectReference: {fileID: 0}
@@ -11355,6 +11468,10 @@ PrefabInstance:
     - target: {fileID: 7606989053836201712, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_text
       value: Resolution Scale
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054045844006, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: value_text_format
+      value: 0.00
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844024, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Name
@@ -11455,6 +11572,10 @@ PrefabInstance:
     - target: {fileID: 7606989054135989660, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606989054501986579, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
+      propertyPath: m_MinValue
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}

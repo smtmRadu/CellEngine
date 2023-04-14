@@ -31,18 +31,15 @@ public class PhysarumController : MonoBehaviour
     public Vector2Int SO_Range = new Vector2Int(3, 27);
     public Vector2Int SS_Range = new Vector2Int(1, 3);
 
-    private void Awake()
+    private void Start()
     {
+        DeployChange(Random.Range(mixColorRange.x * 3, mixColorRange.y * 3));
+
         if (this.enabled == false)
             return;
 
         penSize = (int)(penSize * engineRef.resolutionScale);
         eraserSize = (int)(eraserSize * engineRef.resolutionScale);
-
-    }
-    private void Start()
-    {
-        DeployChange(Random.Range(mixColorRange.x * 3, mixColorRange.y * 3));
     }
     private void Update()
     {
@@ -275,7 +272,7 @@ public class PhysarumController : MonoBehaviour
             s_param.SO = Random.Range(SO_Range.x, SO_Range.y + 1);
             s_param.SS = Random.Range(SS_Range.x, SS_Range.y + 1);
         }
-        
+        menuRef.ChangeSliders_ByParameters();
     }
     struct ChemColors
     {

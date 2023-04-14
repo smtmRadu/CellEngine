@@ -1,23 +1,25 @@
 using NeuroForge;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PhysarumSceneManager : MonoBehaviour
 {
     public PhysarumEngine PEngine;
+    public PhysarumMenu menuRef;
     public Texture2D mouseCursor;
 
     [Header("Audio")]
     public AudioSource audioSource;
     public List<AudioClip> bgMusic = new List<AudioClip>();
 
+
     [Header("Fadeing")]
+    [SerializeField] TMPro.TMP_Text fpsCounter;
     public float fadeRate = 0.95f;
     public float appearRate = 0.9f;
     private Vector2 mouseLastPosition;
-    public TMPro.TMP_Text fpsCounterText;
-
     public float timeStep__AfterTheyStartFading = 2f;
     [SerializeField] private float timeLeft__UntilTheyStartFading;
 
@@ -27,6 +29,29 @@ public class PhysarumSceneManager : MonoBehaviour
     private void Awake()
     {
         Cursor.SetCursor(mouseCursor, Vector3.zero, CursorMode.ForceSoftware);
+
+
+        var pipe = FindObjectOfType<PhysarumPipe>();
+        if (pipe != null)
+        {
+            //use pipe
+            PEngine.resolutionScale = pipe.resolution;
+            PEngine.initializationType = pipe.initType;
+            PEngine.populationPercentageInit = pipe.population;
+
+            menuRef.Resolution.value = pipe.resolution;
+            menuRef.SpawnType.value = (int)pipe.initType;
+            menuRef.Population.value = pipe.population;
+
+        }
+        else
+        {
+            //create pipe
+            pipe = new PhysarumPipe();
+            var newPipeGO = new GameObject("Pipe");         
+            newPipeGO.AddComponent(pipe.GetType());
+            DontDestroyOnLoad(newPipeGO);
+        }
     }
     private void Start()
     {
@@ -35,15 +60,28 @@ public class PhysarumSceneManager : MonoBehaviour
             audioSource.clip = Functions.RandomIn(bgMusic);
             audioSource.Play();
         }
-        
+
+        toFadeImages.Add(menuRef.menuImage);
+        toFadeImages.Add(menuRef.leftFade);
+        toFadeImages.Add(menuRef.rightFade);
+
+        toFadeText.Add(menuRef.fpsCounter);
+        toFadeText.Add(menuRef.speciesNo);
+        toFadeText.Add(menuRef.populationPerc);
+        toFadeText.Add(menuRef.imageRendered);
+        toFadeText.Add(menuRef.menuLabel);
     }
-    void Update()
+
+    private void Update()
     {
         FadeReferenceControls();
-        fpsCounterText.text = (1f / Time.deltaTime).ToString("0.0 FPS");
+        fpsCounter.text = (1f / Time.deltaTime).ToString("0.0 FPS");
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ResetScene();
+        }
     }
-
     void FadeReferenceControls()
     {
 
@@ -92,5 +130,19 @@ public class PhysarumSceneManager : MonoBehaviour
         }
 
         mouseLastPosition = Input.mousePosition;
+    }
+
+    void ResetScene()
+    {
+        var pipe = FindObjectOfType<PhysarumPipe>();
+        // prepare pipe
+        pipe.initType = (InitAgentsType)menuRef.SpawnType.value;
+        pipe.population = menuRef.Population.value;
+        pipe.resolution = menuRef.Resolution.value;
+
+
+
+
+        SceneManager.LoadScene("Physarum");
     }
 }
