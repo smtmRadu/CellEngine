@@ -1,4 +1,4 @@
-#pragma kernel FilterKern
+#pragma kernel RenderChemicals
 
 RWStructuredBuffer<float> chemicals_buff_in;
 RWStructuredBuffer<int> spec_mask_buff_in;
@@ -38,7 +38,7 @@ int ArgMax(float values[6]) // three spots where you need to modify 6 if needed*
 
 
 [numthreads(32, 32, 1)]
-void FilterKern(uint3 threadID : SV_DispatchThreadID)
+void RenderChemicals(uint3 threadID : SV_DispatchThreadID)
 {
     int2 inputTexcoord = int2(threadID.xy);
 
@@ -84,8 +84,9 @@ void FilterKern(uint3 threadID : SV_DispatchThreadID)
     
     int P = threadID.x + threadID.y * W;
 
-    chemicals_buff_out[P] = sum;
-    spec_mask_buff_out[P] = spc;
+    chemicals_buff_out[P] = sum;  
+    if (spc != 0) spec_mask_buff_out[P] = spc; // by doing this i solved artifacts problem (do not remove this)
+        
     
     if (sum > chemColorShift)
         pix_displ_buff_out[P] = lerp(colors2_buff_in[spc], colors1_buff_in[spc], (sum - chemColorShift) / chemColorShift);

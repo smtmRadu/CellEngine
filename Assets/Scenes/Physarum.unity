@@ -617,12 +617,11 @@ MonoBehaviour:
   - {fileID: 1528757853}
   - {fileID: 1620981318}
   - {fileID: 1203082732}
-  filterShader: {fileID: 7200000, guid: a01300c1c1bc2674db864d22405c89f9, type: 3}
+  chemsShader: {fileID: 7200000, guid: a01300c1c1bc2674db864d22405c89f9, type: 3}
   imageShader: {fileID: 7200000, guid: b5b255728ff0172468acb5dea3617c0c, type: 3}
   agentsShader: {fileID: 7200000, guid: f0b5837ce86e4cc4aaa35224ad51ea4a, type: 3}
   speciesCount: 0
   steps: 0
-  THREADS: 32
   whatWeRender: 0
   resolutionScale: 0.5
   populationPercentageInit: 0.2

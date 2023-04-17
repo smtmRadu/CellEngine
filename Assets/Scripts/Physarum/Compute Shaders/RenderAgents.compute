@@ -87,7 +87,7 @@ void RenderAgents(uint3 threadID : SV_DispatchThreadID)
     int P = threadID.x + threadID.y * W;
 
     chemicals_buff_out[P] = sum;
-    spec_mask_buff_out[P] = spc;
+    if(spc != 0) spec_mask_buff_out[P] = spc; // we do not care if on this space background is superior in strength
     
     pix_displ_buff_out[P] = colors1_buff_in[agents_buff_in[P]];
 }

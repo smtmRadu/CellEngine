@@ -16,7 +16,7 @@ public class PhysarumEngine : MonoBehaviour
 
 
     [Header("Shaders")]
-    public ComputeShader filterShader;
+    public ComputeShader chemsShader;
     public ComputeShader imageShader;
     public ComputeShader agentsShader;
 
@@ -24,7 +24,6 @@ public class PhysarumEngine : MonoBehaviour
     [Header("Readonly")]
     public int speciesCount = 0;
     public int steps = 0;
-    public int THREADS = 32; // keep like this only
 
     [Header("Environment Hyperparameters")]
     public WhatWeRender whatWeRender = WhatWeRender.Chemicals;
@@ -63,8 +62,11 @@ public class PhysarumEngine : MonoBehaviour
         ENV_Tex.filterMode = FilterMode.Point;
         ENV_Img.sprite = Sprite.Create(ENV_Tex, new Rect(0, 0, env_width, env_height), new Vector2(.5f, .5f));
         ENV_Img.color = Color.white;
-        threadGroupsX = (environment.width + THREADS - 1) / THREADS;
-        threadGroupsY = (environment.height + THREADS - 1) / THREADS;
+
+        // Dispatch the environment into threadGroups (assuming threadNO is a power of 2 - this case 32)
+        threadGroupSizeX = (env_width + 31) / 32;
+        threadGroupSizeY = (env_height + 31) / 32;
+        threadGroupSizeZ = 1;
 
         // Compute shaders
         agents_buff_in = new ComputeBuffer(resolution, sizeof(int));
@@ -221,12 +223,11 @@ public class PhysarumEngine : MonoBehaviour
     ComputeBuffer spec_mask_buff_out;
     ComputeBuffer DISPLAY_buff_out;
 
-    ComputeBuffer colors1_buff_in;
-    ComputeBuffer colors2_buff_in;
+    ComputeBuffer colors1_buff_in, colors2_buff_in;
     Color[] pixels;
 
-    private int threadGroupsX;
-    private int threadGroupsY;
+    private int threadGroupSizeX, threadGroupSizeY, threadGroupSizeZ;
+
     void AgentsStep_CPU()
     {
         // At each execution step of the scheduler, every agent attempts to move forward one step in the current
@@ -273,29 +274,30 @@ public class PhysarumEngine : MonoBehaviour
             colors2_buff_in.SetData(new[] { species_param[i].chemCol2 }, 0, i, 1);
         }
 
-        filterShader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
-        filterShader.SetBuffer(0, "spec_mask_buff_in", spec_mask_buff_in);
-        filterShader.SetBuffer(0, "chemicals_buff_out", chemicals_buff_out);
-        filterShader.SetBuffer(0, "spec_mask_buff_out", spec_mask_buff_out);
-        filterShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
+        chemsShader.SetBuffer(0, "chemicals_buff_in", chemicals_buff_in);
+        chemsShader.SetBuffer(0, "spec_mask_buff_in", spec_mask_buff_in);
+        chemsShader.SetBuffer(0, "chemicals_buff_out", chemicals_buff_out);
+        chemsShader.SetBuffer(0, "spec_mask_buff_out", spec_mask_buff_out);
+        chemsShader.SetBuffer(0, "pix_displ_buff_out", DISPLAY_buff_out);
                          
-        filterShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
-        filterShader.SetBuffer(0, "colors2_buff_in", colors2_buff_in);
-        filterShader.SetFloat("chemColorShift", chemColorShift);
+        chemsShader.SetBuffer(0, "colors1_buff_in", colors1_buff_in);
+        chemsShader.SetBuffer(0, "colors2_buff_in", colors2_buff_in);
+        chemsShader.SetFloat("chemColorShift", chemColorShift);
 
-        filterShader.SetFloat("decayT", decayT);
-        filterShader.SetInt("W", environment.width);
-        filterShader.SetInt("H", environment.height);
+        chemsShader.SetFloat("decayT", decayT);
+        chemsShader.SetInt("W", environment.width);
+        chemsShader.SetInt("H", environment.height);
 
 
 
         // Run CS
-        filterShader.Dispatch(
+        chemsShader.Dispatch(
             0, 
-            threadGroupsX,
-            threadGroupsY,
-            1);
-
+            threadGroupSizeX,
+            threadGroupSizeY,
+            threadGroupSizeZ
+            );
+            
         chemicals_buff_out.GetData(environment.chemicals);
         spec_mask_buff_out.GetData(environment.spec_mask);
 
@@ -340,9 +342,10 @@ public class PhysarumEngine : MonoBehaviour
         // Run CS
         agentsShader.Dispatch(
             0,
-            threadGroupsX,
-            threadGroupsY,
-            1);
+            threadGroupSizeX,
+            threadGroupSizeY,
+            threadGroupSizeZ
+            );
 
         chemicals_buff_out.GetData(environment.chemicals);
         spec_mask_buff_out.GetData(environment.spec_mask);
@@ -381,9 +384,10 @@ public class PhysarumEngine : MonoBehaviour
         // Run CS
         imageShader.Dispatch(
             0,
-            threadGroupsX,
-            threadGroupsY,
-            1);
+            threadGroupSizeX,
+            threadGroupSizeY,
+            threadGroupSizeZ
+            );
 
         DISPLAY_buff_out.GetData(pixels);
         ENV_Tex.SetPixels(pixels);
