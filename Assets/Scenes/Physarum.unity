@@ -104,7 +104,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +117,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -326,7 +326,9 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -707,6 +709,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -900,6 +903,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &291522388
 GameObject:
@@ -1108,9 +1114,17 @@ Camera:
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -2356,6 +2370,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -2539,6 +2554,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!224 &832411114 stripped
 RectTransform:
@@ -3113,6 +3131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -3674,6 +3693,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -3716,7 +3736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844006, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: value_text_format
-      value: 0
+      value: 0.0
       objectReference: {fileID: 0}
     - target: {fileID: 7606989054045844024, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
       propertyPath: m_Name
@@ -3859,6 +3879,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &1320225339
 GameObject:
@@ -4270,6 +4293,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -4457,6 +4481,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &1528757851
 GameObject:
@@ -5059,6 +5086,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -5238,6 +5266,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &1704011821
 GameObject:
@@ -5577,6 +5608,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -5766,12 +5798,16 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1001 &1857199786
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -5961,12 +5997,16 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1001 &1883335929
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -6156,6 +6196,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &1933282370
 GameObject:
@@ -6275,6 +6318,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 95658720}
     m_Modifications:
     - target: {fileID: 7606989053521550246, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
@@ -6470,6 +6514,9 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f110fb0e4a929848a55b614e996f382, type: 3}
 --- !u!1 &2125086850
 GameObject:
