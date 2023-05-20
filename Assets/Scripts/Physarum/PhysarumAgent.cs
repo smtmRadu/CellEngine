@@ -25,7 +25,7 @@ public class PhysarumAgent
     
     public void MotorStage_1()
     {
-        if(Functions.randomValue < parameters.pCD)
+        if(parameters.pCD > 0 && Functions.randomValue < parameters.pCD)
             orientationDegrees = Random.Range(0f, 360f);
 
         
