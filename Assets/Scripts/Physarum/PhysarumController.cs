@@ -108,7 +108,7 @@ public class PhysarumController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.L))
             rendererRef.RenderImage();
         else if (Input.GetKeyDown(KeyCode.S))
-            rendererRef.SavePatterns();
+            rendererRef.SavePattern();
         //-----------------------------------------------------
 
 

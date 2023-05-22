@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
+using System;
 
 public class ImageConstructor : MonoBehaviour
 {
@@ -12,12 +13,11 @@ public class ImageConstructor : MonoBehaviour
     [SerializeField] List<(string,Sprite)> images = new List<(string, Sprite)>();
 
 
-
     [SerializeField] int depT_WhenRenderingImage = 0;
     [SerializeField] float decayT_WhenRenderingImage = 0f;
     public void RenderImage()
     {
-        var name_img = OpenFileDialog();
+        var name_img = OpenFileDialog_Imgs();
         var image = name_img.Item2;
         var name = name_img.Item1;
 
@@ -36,12 +36,56 @@ public class ImageConstructor : MonoBehaviour
     
     public void LoadPattern()
     {
+        var dialog = new System.Windows.Forms.OpenFileDialog();
+        dialog.Filter = "JSON Files (*.pttn)|*.pttn";
 
+        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+            var filePath = dialog.FileName;
+            try
+            {
+                string data = File.ReadAllText(filePath);
+                SpeciesParametersSerializableArray speciesParam = JsonUtility.FromJson<SpeciesParametersSerializableArray>(data);
+
+                for (int i = 1; i < engineRef.species_param.Length; i++)
+                {
+                    engineRef.species_param[i].SetFrom(speciesParam.values[i]);
+                }
+
+                Debug.Log("Pattern loaded successfully!");
+            }
+            catch
+            {
+                Debug.Log("The pattern couldn't be loaded!");
+            }
+        }
     }
-    public void SavePatterns()
+    public void SavePattern()
     {
+        SpeciesParametersSerializableArray speciesParameters = new SpeciesParametersSerializableArray(engineRef.species_param);
 
+        var dialog = new System.Windows.Forms.SaveFileDialog();
+        dialog.Filter = "JSON Files (*.pttn)|*.pttn";
+
+        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+            var filePath = dialog.FileName;
+
+            try
+            {
+                string jsonData = JsonUtility.ToJson(speciesParameters);
+                File.WriteAllText(filePath, jsonData);
+
+                Debug.Log("Pattern saved successfully!");
+            }
+            catch
+            {
+                Debug.Log("The pattern couldn't be saved!");
+            }
+        }
     }
+
+    
 
     public void RenderNextImage()
     {
@@ -176,7 +220,7 @@ public class ImageConstructor : MonoBehaviour
         outputTexture.Release();
         return resultTexture;
     }
-    private (string, Texture2D) OpenFileDialog()
+    private (string, Texture2D) OpenFileDialog_Imgs()
     {
         // Open file dialog to choose an image file
         var dialog = new System.Windows.Forms.OpenFileDialog();
@@ -193,24 +237,14 @@ public class ImageConstructor : MonoBehaviour
         return (null, null);
     }
 
+    private class SpeciesParametersSerializableArray
+    {
+        [SerializeField] public SpeciesParametersSerializable[] values;
+
+        public SpeciesParametersSerializableArray(SpeciesParameters[] sp)
+        {
+            values = sp.Select(x => new SpeciesParametersSerializable(x)).ToArray();
+        }
+    }
+
 }
-// #region Editor
-// [CustomEditor(typeof(ImageConstructor)), CanEditMultipleObjects]
-// class ScriptlessCameraSensor : Editor
-// {
-//     public override void OnInspectorGUI()
-//     {
-//         List<string> dontInclude = new List<string>() { "m_Script" };
-//         var script = (ImageConstructor)target;
-// 
-//         DrawPropertiesExcluding(serializedObject, dontInclude.ToArray());
-//         serializedObject.ApplyModifiedProperties();
-// 
-//         EditorGUILayout.Separator();
-//         if (GUILayout.Button("SendImage"))
-//         {
-//             script.PassImage();
-//         }
-//     }
-// }
-// #endregion
